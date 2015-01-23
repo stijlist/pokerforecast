@@ -1,8 +1,22 @@
 (ns pokerforecast.core
-  (:require [clojure.browser.repl :as repl]))
+  (:require [clojure.browser.repl :as repl]
+            [goog.dom :as dom]
+            [goog.events :as events]
+            [goog.cssom :as css]))
 
 ;; (repl/connect "http://localhost:9000/repl")
 
 (enable-console-print!)
 
+
+(defn toggle-hide
+  [element-or-id]
+  (-> (dom/getElement element-or-id)
+      (.-classList)
+      (.toggle "hide")))
+
+(-> (dom/getElement "login")
+    (events/listen "click" #(toggle-hide "login-form-container")))
+
+(println (dom/getElement "login-form-container"))
 (println "Hello world!")
