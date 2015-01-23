@@ -1,6 +1,11 @@
 Rails.application.routes.draw do  
+  devise_for :players
+  resources :players
+  post 'attendance/:poker_night_id/:player_id', to: 'attendance#create', as: :create_attendance
+  delete 'attendance/:poker_night_id/:player_id', to: 'attendance#destroy', as: :destroy_attendance
+
   resources :poker_nights
-  root 'poker_nights#index'
+  root 'welcome#index'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

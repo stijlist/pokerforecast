@@ -1,5 +1,6 @@
 class PokerNightsController < ApplicationController
   before_action :set_poker_night, only: [:show, :edit, :update, :destroy]
+  before_action :authenticate_player!
 
   # GET /poker_nights
   # GET /poker_nights.json

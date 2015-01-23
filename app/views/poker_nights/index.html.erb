@@ -14,6 +14,11 @@
         <td><%= poker_night.date %></td>
         <td><%= link_to 'Show', poker_night %></td>
         <td><%= link_to 'Edit', edit_poker_night_path(poker_night) %></td>
+        <% unless current_player.attending?(poker_night) %>
+          <td><%= link_to 'Going?', create_attendance_path(poker_night, current_player), method: :post %></td>
+        <% else %>
+          <td><%= link_to 'Not going?', destroy_attendance_path(poker_night, current_player), method: :delete %></td>
+        <% end %>
         <td><%= link_to 'Destroy', poker_night, method: :delete, data: { confirm: 'Are you sure?' } %></td>
       </tr>
     <% end %>
