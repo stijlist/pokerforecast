@@ -1,0 +1,19 @@
+
+#graph {
+  border-left: 1px solid black;
+  border-bottom: 1px solid black;
+  width: 100px;
+  height: 100px;
+}
+
+li.new {
+  list-style: none
+}
+
+span.attending {
+  color: grey
+}
+
+.hide {
+  display: none;
+}
