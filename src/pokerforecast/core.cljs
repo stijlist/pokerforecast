@@ -15,8 +15,15 @@
       (.-classList)
       (.toggle "hide")))
 
+(defn expand-clicked-div
+  [event]
+  (toggle-hide (dom/getNextElementSibling (.-target event))))
+
 (-> (dom/getElement "login")
     (events/listen "click" #(toggle-hide "login-form-container")))
+
+(-> (dom/getElementByClass "attending")
+    (events/listen "click" expand-clicked-div))
 
 (println (dom/getElement "login-form-container"))
 (println "Hello world!")
