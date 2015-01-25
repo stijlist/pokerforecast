@@ -8,6 +8,16 @@
 
 (enable-console-print!)
 
+(def mydata #js [4 0 2 5 0 0 6 0])
+
+(.. js/d3 
+    (select (dom/getElement "graph"))
+    (data mydata)
+    (enter)
+    (insert "span")
+    (style "height" #(str % "em"))
+    (style "background-color" "steelblue")
+    (text identity))
 
 (defn toggle-hide
   [element-or-id]
@@ -15,7 +25,7 @@
       (.-classList)
       (.toggle "hide")))
 
-(defn expand-clicked-div
+(defn expand-sibling-div
   [event]
   (toggle-hide (dom/getNextElementSibling (.-target event))))
 
@@ -23,7 +33,4 @@
     (events/listen "click" #(toggle-hide "login-form-container")))
 
 (-> (dom/getElementByClass "attending")
-    (events/listen "click" expand-clicked-div))
-
-(println (dom/getElement "login-form-container"))
-(println "Hello world!")
+    (events/listen "click" expand-sibling-div))
