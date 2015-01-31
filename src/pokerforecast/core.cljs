@@ -1,36 +1,36 @@
 (ns pokerforecast.core
   (:require [clojure.browser.repl :as repl]
-            [goog.dom :as dom]
-            [goog.events :as events]
-            [goog.cssom :as css]))
-
-;; (repl/connect "http://localhost:9000/repl")
+            [om.dom :as dom]
+            [om.core :as om]
+            [goog.events :as events]))
 
 (enable-console-print!)
 
-(def mydata #js [4 0 2 5 0 0 6 0])
 
-(.. js/d3 
-    (select (dom/getElement "graph"))
-    (data mydata)
-    (enter)
-    (insert "span")
-    (style "height" #(str % "em"))
-    (style "background-color" "steelblue")
-    (text identity))
+(def app-state (atom {:games [{:date "Monday, January 18"
+                               :attending [{:name "James"
+                                            :rsvpd 3
+                                            :attended 2}
+                                           {:name "Nick"
+                                            :rsvpd 1
+                                            :attended 1}]}]}))
 
-(defn toggle-hide
-  [element-or-id]
-  (-> (dom/getElement element-or-id)
-      (.-classList)
-      (.toggle "hide")))
+(println @app-state)
 
-(defn expand-sibling-div
-  [event]
-  (toggle-hide (dom/getNextElementSibling (.-target event))))
+(om/root 
+  (fn [app owner]
+    (reify om/IRender
+      (render [_]
+        (dom/h1 nil "hello world"))))
+  app-state
+  {:target (. js/document getElementById "game-list")})
 
-(-> (dom/getElement "login")
-    (events/listen "click" #(toggle-hide "login-form-container")))
+; (defn expand-sibling-div
+;   [event]
+;   (toggle-hide (dom/getNextElementSibling (.-target event))))
 
-(-> (dom/getElementByClass "attending")
-    (events/listen "click" expand-sibling-div))
+; (-> (dom/getElement "login")
+;     (events/listen "click" #(toggle-hide "login-form-container")))
+
+; (-> (dom/getElementByClass "attending")
+;     (events/listen "click" expand-sibling-div))
