@@ -24,6 +24,12 @@
   (dom/span #js {:className "attending"}
     (count (:attending game))))
 
+(defn render-attendees
+  [game]
+  (apply dom/ul #js {:className "attendees"}
+         (map :name (:attending game))))
+
+
 (defn render-game-list
   [app owner]
   (om/component
@@ -31,7 +37,8 @@
            (map 
              #(dom/li nil
                (render-date %) 
-               (render-attending-count %)) 
+               (render-attending-count %)
+               (render-attendees %)) 
              (:games app)))))
 
 (om/root 
