@@ -13,13 +13,28 @@
                                            {:name "Nick"
                                             :rsvpd 1
                                             :attended 1}]}]}))
+
+(defn render-date
+  [game]
+  (dom/span #js {:className "date"}
+            (:date game)))
+
+(defn render-attending-count
+  [game]
+  (dom/span #js {:className "attending"}
+    (count (:attending game))))
+
 (defn render-game-list
   [app owner]
   (om/component
     (apply dom/ul nil 
-           (map :date (:games app)))))
+           (map 
+             #(dom/li nil
+               (render-date %) 
+               (render-attending-count %)) 
+             (:games app)))))
 
 (om/root 
   render-game-list
   app-state
-  {:target (. js/document getElementById "game-list")})
+  {:target (. js/document getElementById "app")})

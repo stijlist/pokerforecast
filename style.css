@@ -11,8 +11,12 @@ li.new {
 }
 
 span.attending {
-  color: grey
+  color: grey;
+  margin: 0.5em
 }
+
+span.attending::before { content: "(" }
+span.attending::after { content: " going)" }
 
 .hide {
   display: none;
