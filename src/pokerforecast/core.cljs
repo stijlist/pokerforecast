@@ -30,7 +30,7 @@
 
 (defn render-attendees
   [game]
-  (apply dom/ul #js {:className "attendees"}
+  (apply dom/ul #js {:className "attendees hide"}
          (map render-attendee (:attending game))))
 
 (defn game-view [game]
@@ -38,6 +38,7 @@
     (dom/li nil
       (render-date game) 
       (render-attending-count game)
+      (dom/button nil "Show attending")
       (render-attendees game))))
 
 (defn render-game-list
