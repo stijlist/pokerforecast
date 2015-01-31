@@ -1,7 +1,9 @@
 (ns pokerforecast.core
+  (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [clojure.browser.repl :as repl]
             [om.dom :as dom :include-macros true]
             [om.core :as om :include-macros true]
+            [cljs.core.async :refer [put! chan <!]]
             [goog.events :as events]))
 
 (enable-console-print!)
@@ -34,12 +36,14 @@
          (map render-attendee (:attending game))))
 
 (defn game-view [game]
-  (om/component
-    (dom/li nil
-      (render-date game) 
-      (render-attending-count game)
-      (dom/button nil "Show attending")
-      (render-attendees game))))
+  (reify
+    om/IRender
+    (render [this]
+      (dom/li nil
+        (render-date game) 
+        (render-attending-count game)
+        (dom/button nil "Show attending")
+        (render-attendees game)))))
 
 (defn render-game-list
   [app owner]
