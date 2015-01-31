@@ -33,17 +33,18 @@
   (apply dom/ul #js {:className "attendees"}
          (map render-attendee (:attending game))))
 
-(defn render-game [game]
-  (dom/li nil
-    (render-date game) 
-    (render-attending-count game)
-    (render-attendees game)))
+(defn game-view [game]
+  (om/component
+    (dom/li nil
+      (render-date game) 
+      (render-attending-count game)
+      (render-attendees game))))
 
 (defn render-game-list
   [app owner]
   (om/component
     (apply dom/ul nil 
-           (map render-game (:games app)))))
+           (om/build-all game-view (:games app)))))
 
 (om/root 
   render-game-list
