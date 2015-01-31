@@ -14,7 +14,9 @@
                                             :attended 2}
                                            {:name "Nick"
                                             :rsvpd 1
-                                            :attended 1}]}]}))
+                                            :attended 1}]
+                               :index 0
+                               :hidden true}]}))
 
 (defn render-date
   [game]
@@ -32,17 +34,20 @@
 
 (defn render-attendees
   [game]
-  (apply dom/ul #js {:className "attendees hide"}
+  ; TODO: check goog/css for classname manipulation utils
+  (apply dom/ul #js {:className (str "attendees" (if (:hidden game) " hide" ""))}
          (map render-attendee (:attending game))))
 
-(defn game-view [game]
+(defn game-view 
+  [game owner]
   (reify
-    om/IRender
-    (render [this]
+    om/IRenderState
+    (render-state [this {:keys [toggle-chan]}]
       (dom/li nil
         (render-date game) 
         (render-attending-count game)
-        (dom/button nil "Show attending")
+        (dom/button {:onClick (fn [e] (println "Yo") (put! toggle-chan (:index game)))} 
+                    "Show attending")
         (render-attendees game)))))
 
 (defn render-game-list
@@ -56,12 +61,9 @@
       (let [toggle-chan (om/get-state owner :toggle-chan)]
         (go 
           (loop []
-            (let [toggled-game (<! toggle-chan)]
-              (mapv 
-                (fn [game]
-                  (if (= toggled-game game)
-                    (update game :hidden not)))
-                (:games app)))
+            (println "hey")
+            (let [toggled-game-index (<! toggle-chan)]
+              (update-in app [:games toggled-game-index :hidden] not))
             (recur)))))
     om/IRenderState
     (render-state [this {:keys [toggle-chan]}]
