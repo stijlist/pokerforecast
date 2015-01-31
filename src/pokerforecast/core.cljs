@@ -24,10 +24,14 @@
   (dom/span #js {:className "attending"}
     (count (:attending game))))
 
+(defn render-attendee
+  [attendee]
+  (dom/li nil (:name attendee)))
+
 (defn render-attendees
   [game]
   (apply dom/ul #js {:className "attendees"}
-         (map :name (:attending game))))
+         (map render-attendee (:attending game))))
 
 
 (defn render-game-list
