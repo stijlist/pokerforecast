@@ -33,7 +33,6 @@
   (apply dom/ul #js {:className "attendees"}
          (map render-attendee (:attending game))))
 
-
 (defn render-game-list
   [app owner]
   (om/component
