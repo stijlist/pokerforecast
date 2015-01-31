@@ -24,13 +24,3 @@
         (dom/h1 nil "hello world"))))
   app-state
   {:target (. js/document getElementById "game-list")})
-
-; (defn expand-sibling-div
-;   [event]
-;   (toggle-hide (dom/getNextElementSibling (.-target event))))
-
-; (-> (dom/getElement "login")
-;     (events/listen "click" #(toggle-hide "login-form-container")))
-
-; (-> (dom/getElementByClass "attending")
-;     (events/listen "click" expand-sibling-div))
