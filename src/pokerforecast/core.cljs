@@ -16,7 +16,8 @@
 (defn render-game-list
   [app owner]
   (om/component
-    (dom/h1 nil "hello components!")))
+    (apply dom/ul nil 
+           (map :date (:games app)))))
 
 (om/root 
   render-game-list
