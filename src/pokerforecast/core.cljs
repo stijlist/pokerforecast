@@ -48,8 +48,23 @@
 (defn render-game-list
   [app owner]
   (reify
-    om/IRender
-    (render [this]
+    om/IInitState
+    (init-state [_]
+      {:toggle-chan (chan)})
+    om/IWillMount
+    (will-mount [_]
+      (let [toggle-chan (om/get-state owner :toggle-chan)]
+        (go 
+          (loop []
+            (let [toggled-game (<! toggle-chan)]
+              (mapv 
+                (fn [game]
+                  (if (= toggled-game game)
+                    (update game :hidden not)))
+                (:games app)))
+            (recur)))))
+    om/IRenderState
+    (render-state [this {:keys [toggle-chan]}]
       (apply dom/ul nil 
             (om/build-all game-view (:games app))))))
 
