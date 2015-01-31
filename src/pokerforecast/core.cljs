@@ -47,9 +47,11 @@
 
 (defn render-game-list
   [app owner]
-  (om/component
-    (apply dom/ul nil 
-           (om/build-all game-view (:games app)))))
+  (reify
+    om/IRender
+    (render [this]
+      (apply dom/ul nil 
+            (om/build-all game-view (:games app))))))
 
 (om/root 
   render-game-list
