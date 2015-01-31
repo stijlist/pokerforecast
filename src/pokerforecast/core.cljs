@@ -15,9 +15,8 @@
                                             :attended 1}]}]}))
 (defn render-game-list
   [app owner]
-  (reify om/IRender
-    (render [_]
-      (dom/h1 nil "hello world"))))
+  (om/component
+    (dom/h1 nil "hello components!")))
 
 (om/root 
   render-game-list
