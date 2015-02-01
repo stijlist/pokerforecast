@@ -9,23 +9,21 @@
 (enable-console-print!)
 
 (def app-state (atom {:games [{:date "Monday, January 18"
-                               :attending [{:name "James"
-                                            :rsvpd 3
-                                            :attended 2}
-                                           {:name "Nick"
-                                            :rsvpd 1
-                                            :attended 1}]
-                               :index 0 ; TODO: use map-indexed at call site instead 
-                               :hidden true}
-                              {:date "Tuesday, January 19"
-                               :attending [{:name "Bert"
-                                            :rsvpd 2
-                                            :attended 1}
-                                           {:name "Max"
-                                            :rsvpd 1
-                                            :attended 1}]
-                               :index 1
-                               :hidden true}]}))
+                                :attending [{:name "James"
+                                             :rsvpd 3
+                                             :attended 2}
+                                            {:name "Nick"
+                                             :rsvpd 1
+                                             :attended 1}]
+                                :hidden true}
+                               {:date "Tuesday, January 19"
+                                :attending [{:name "Bert"
+                                             :rsvpd 2
+                                             :attended 1}
+                                            {:name "Max"
+                                             :rsvpd 1
+                                             :attended 1}]
+                                :hidden true}]}))
 
 (defn render-date
   [game]
@@ -56,10 +54,12 @@
         (render-date game) 
         (render-attending-count game)
         (dom/button #js {:onClick (fn [e] 
-                                    (println "Click triggered!") 
                                     (put! toggle-chan (:index game)))} 
                     "Show attending")
         (render-attendees game)))))
+
+(defn- assoc-with-indices [coll]
+  (map-indexed (fn [i item] (assoc item :index i)) coll))
 
 (defn render-game-list
   [app owner]
@@ -73,15 +73,14 @@
       (let [toggle-chan (om/get-state owner :toggle-chan)]
         (go 
           (loop []
-            (println "go-loop started")
-            (let [toggled-game-index (<! toggle-chan)]
-              (println (str "Index is " toggled-game-index))
-              (om/transact! app [:games toggled-game-index :hidden] not))
+            (let [game-index (<! toggle-chan)]
+              (om/transact! app [:games game-index :hidden] not))
             (recur)))))
     om/IRenderState
     (render-state [this {:keys [toggle-chan]}]
       (apply dom/ul nil 
-            (om/build-all game-view (:games app)
+            (om/build-all game-view 
+                          (assoc-with-indices (:games app))
                           {:init-state {:toggle-chan toggle-chan}})))))
 
 (om/root 
