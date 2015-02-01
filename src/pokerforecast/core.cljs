@@ -47,17 +47,11 @@
   (apply dom/ul #js {:className (str "attendees" (if (:hidden game) " hide" ""))}
          (map render-attendee (:attending game))))
 
-(def toggle-chan (chan))
-
-(put! toggle-chan "toggle-chan is working")
-(go
-  (println (<! toggle-chan)))
-
 (defn game-view 
   [game owner]
   (reify
     om/IRenderState
-    (render-state [this state]
+    (render-state [this {:keys [toggle-chan]}]
       (dom/li nil
         (render-date game) 
         (render-attending-count game)
@@ -70,23 +64,25 @@
 (defn render-game-list
   [app owner]
   (reify
-    #_om/IInitState
-    #_(init-state [_]
+    om/IInitState
+    (init-state [_]
       (println "state initialized")
       {:toggle-chan (chan)})
     om/IWillMount
-    (will-mount [_]
-      (go 
-        (loop []
-          (println "go-loop started")
-          (let [toggled-game-index (<! toggle-chan)]
-            (println (str "Index is " toggled-game-index))
-            (om/transact! app [:games toggled-game-index :hidden] not))
-          (recur))))
+    (will-mount [this]
+      (let [toggle-chan (om/get-state owner :toggle-chan)]
+        (go 
+          (loop []
+            (println "go-loop started")
+            (let [toggled-game-index (<! toggle-chan)]
+              (println (str "Index is " toggled-game-index))
+              (om/transact! app [:games toggled-game-index :hidden] not))
+            (recur)))))
     om/IRenderState
-    (render-state [this state]
+    (render-state [this {:keys [toggle-chan]}]
       (apply dom/ul nil 
-            (om/build-all game-view (:games app))))))
+            (om/build-all game-view (:games app)
+                          {:init-state {:toggle-chan toggle-chan}})))))
 
 (om/root 
   render-game-list
