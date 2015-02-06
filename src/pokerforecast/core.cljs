@@ -117,7 +117,6 @@
   (reify
     om/IInitState
     (init-state [_]
-      (println "state initialized")
       {:toggle-chan (chan)})
     om/IWillMount
     (will-mount [this]

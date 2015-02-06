@@ -36,7 +36,7 @@ span.attending {
 }
 
 span.attending::before { content: "(" }
-span.attending::after { content: " going)" }
+span.attending::after { content: " rsvp'd)" }
 
 .hide {
   display: none;
