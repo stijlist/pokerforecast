@@ -10,8 +10,16 @@ li.new {
   list-style: none
 }
 
+span.attendee::after {
+  content: ":"
+}
+
 span.flake-rate {
   margin: 0.5em
+}
+
+span.flake-rate::after {
+  content: "% flake rate"
 }
 
 span.likelihood {

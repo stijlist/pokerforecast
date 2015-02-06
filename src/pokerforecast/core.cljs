@@ -7,6 +7,8 @@
 
 (enable-console-print!)
 
+(defn inspect [thing] (println thing) thing)
+
 (def app-state (atom {:games [{:date "Monday, January 18"
                                 :attending [{:name "James"
                                              :rsvpd 3
@@ -53,14 +55,9 @@
     (count attendees)
     (apply max (map :threshold attendees))))
 
-(defn inspect [thing] (println thing) thing)
-
 (defn maximum-game-likelihood 
   [{:keys [attending]}]
   (->> (powerset attending)
-       ; which subsets of attending matter?
-       ; only the ones where (> (count attending) (apply max (map :threshold attending)))
-       ; can we only generate the subsets that fulfill this criteria?
        (filter all-thresholds-satisfied)
        (map game-likelihood)
        (apply max)))
@@ -68,6 +65,9 @@
 ;; only special-casing nil right now because max-game-likelihood can return nil
 (defn as-percentage [n] 
   (if n (.toFixed (* n 100)) 0))
+
+(defn flake-rate [attendee]
+  (- 1 (attendance-rate attendee)))
 
 (defn render-date
   [game]
@@ -87,9 +87,9 @@
 (defn render-attendee
   [attendee]
   (dom/li nil 
-          (:name attendee) 
+          (dom/span #js {:className "attendee"} (:name attendee)) 
           (dom/span #js {:className "flake-rate"}
-                    (as-percentage (attendance-rate attendee)))))
+                    (as-percentage (flake-rate attendee)))))
 
 (defn render-attendees
   [game]
