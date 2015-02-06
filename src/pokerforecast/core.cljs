@@ -12,33 +12,53 @@
 (def app-state (atom {:games [{:date "Monday, January 18"
                                 :attending [{:name "James"
                                              :rsvpd 3
-                                             :attended 2}
+                                             :attended 2
+                                             :threshold 3}
                                             {:name "Nick"
                                              :rsvpd 1
-                                             :attended 1}]
+                                             :attended 1
+                                             :threshold 4}]
                                 :hidden true}
                                {:date "Tuesday, January 19"
                                 :attending [{:name "Bert"
                                              :rsvpd 2
-                                             :attended 1}
+                                             :attended 1
+                                             :threshold 2}
                                             {:name "Max"
                                              :rsvpd 1
-                                             :attended 1}]
+                                             :attended 1
+                                             :threshold 5}
+                                            {:name "James"
+                                             :rsvpd 3
+                                             :attended 2
+                                             :threshold 3}]
                                 :hidden true}]}))
+
 (defn attendance-rate
   [{:keys [attended rsvpd]}]
   (/ attended rsvpd))
 
-(defn two-decimals [n] (goog.string.format "%.2f" n))
+(defn powerset ; TODO: write this damn function
+  [coll]
+  ; powerset. write it recursively. take a small step. 
+  ; if, magically, you have the powerset of a collection already, 
+  ; what would you need to do to get the powerset of (add new-item collection)?
+  ; you'd need to map over the old powerset, appending the new item to each 
+  ; of the subsets, and append the result of that map to the old powerset. OH!
+  ; ok, I can write this. 
+  (if-not (seq coll) [[]] ; maybe use empty set instead?
+    (let [old-powerset (powerset (rest coll))] ; TODO: rename to rest-powerset
+      (concat (map #(conj % (first coll)) old-powerset) old-powerset))))
+
+(println (powerset [1 2]))
 
 (defn game-likelihood
-  ; Currently, this is the likelihood that *all players* will
-  ; attend a given game. Really, we should allow each player to
-  ; specify their minimum threshold for attending, sort-by the
-  ; players who are most likely to attend, and try and solve for
-  ; some configuration that maximizes likelihood.
   [game]
-  (reduce (comp * attendance-rate) (:attending game)))
+  (->> (:attending game)
+       (map attendance-rate)
+       (reduce *)))
+
+(defn two-decimals [n] (goog.string.format "%.2f" n))
 
 (defn render-date
   [game]
