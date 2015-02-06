@@ -3,9 +3,7 @@
   (:require [clojure.browser.repl :as repl]
             [om.dom :as dom :include-macros true]
             [om.core :as om :include-macros true]
-            [cljs.core.async :refer [put! chan <!]]
-            [goog.string.format]
-            [goog.events :as events]))
+            [cljs.core.async :refer [put! chan <!]]))
 
 (enable-console-print!)
 
@@ -67,7 +65,9 @@
        (map game-likelihood)
        (apply max)))
 
-(defn two-decimals [n] (if n (goog.string.format "%.2f" n) "0.00"))
+;; only special-casing nil right now because max-game-likelihood can return nil
+(defn as-percentage [n] 
+  (if n (.toFixed (* n 100)) 0))
 
 (defn render-date
   [game]
@@ -77,7 +77,7 @@
 (defn render-likelihood
   [game]
   (dom/span #js {:className "likelihood"}
-            (two-decimals (maximum-game-likelihood game))))
+            (as-percentage (maximum-game-likelihood game))))
 
 (defn render-attending-count
   [game]
@@ -89,7 +89,7 @@
   (dom/li nil 
           (:name attendee) 
           (dom/span #js {:className "flake-rate"}
-                    (two-decimals (attendance-rate attendee)))))
+                    (as-percentage (attendance-rate attendee)))))
 
 (defn render-attendees
   [game]

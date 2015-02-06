@@ -18,6 +18,10 @@ span.likelihood {
   margin: 0.5em;
 }
 
+span.likelihood::after {
+  content: "% chance of poker";
+}
+
 span.attending {
   color: grey;
   margin: 0.5em
