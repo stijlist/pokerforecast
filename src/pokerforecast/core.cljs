@@ -27,7 +27,7 @@
                                             {:name "Max"
                                              :rsvpd 1
                                              :attended 1
-                                             :threshold 5}
+                                             :threshold 3}
                                             {:name "James"
                                              :rsvpd 3
                                              :attended 2
@@ -38,27 +38,36 @@
   [{:keys [attended rsvpd]}]
   (/ attended rsvpd))
 
-(defn powerset ; TODO: write this damn function
+(defn powerset
   [coll]
-  ; powerset. write it recursively. take a small step. 
-  ; if, magically, you have the powerset of a collection already, 
-  ; what would you need to do to get the powerset of (add new-item collection)?
-  ; you'd need to map over the old powerset, appending the new item to each 
-  ; of the subsets, and append the result of that map to the old powerset. OH!
-  ; ok, I can write this. 
   (if-not (seq coll) [[]] ; maybe use empty set instead?
-    (let [old-powerset (powerset (rest coll))] ; TODO: rename to rest-powerset
-      (concat (map #(conj % (first coll)) old-powerset) old-powerset))))
-
-(println (powerset [1 2]))
+    (let [rest-powerset (powerset (rest coll))]
+      (concat (map #(conj % (first coll)) rest-powerset) rest-powerset))))
 
 (defn game-likelihood
-  [game]
-  (->> (:attending game)
+  [attendees]
+  (->> attendees
        (map attendance-rate)
        (reduce *)))
 
-(defn two-decimals [n] (goog.string.format "%.2f" n))
+(defn all-thresholds-satisfied [attendees]
+  (>= 
+    (count attendees)
+    (apply max (map :threshold attendees))))
+
+(defn inspect [thing] (println thing) thing)
+
+(defn maximum-game-likelihood 
+  [{:keys [attending]}]
+  (->> (powerset attending)
+       ; which subsets of attending matter?
+       ; only the ones where (> (count attending) (apply max (map :threshold attending)))
+       ; can we only generate the subsets that fulfill this criteria?
+       (filter all-thresholds-satisfied)
+       (map game-likelihood)
+       (apply max)))
+
+(defn two-decimals [n] (if n (goog.string.format "%.2f" n) "0.00"))
 
 (defn render-date
   [game]
@@ -68,7 +77,7 @@
 (defn render-likelihood
   [game]
   (dom/span #js {:className "likelihood"}
-            (two-decimals (game-likelihood game))))
+            (two-decimals (maximum-game-likelihood game))))
 
 (defn render-attending-count
   [game]
@@ -84,7 +93,6 @@
 
 (defn render-attendees
   [game]
-  ; TODO: check goog/css for classname manipulation utils
   (apply dom/ul #js {:className (str "attendees" (if (:hidden game) " hide" ""))}
          (map render-attendee (:attending game))))
 
