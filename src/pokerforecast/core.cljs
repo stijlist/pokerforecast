@@ -8,8 +8,6 @@
 
 (enable-console-print!)
 
-; TODO: consider using a map of game-id -> game instead of a
-; vector, and simply using sort-by :date to render/re-render
 (def app-state (atom {:games [{:date "Monday, January 18"
                                 :attending [{:name "James"
                                              :rsvpd 3
@@ -27,56 +25,43 @@
                                              :attended 1}]
                                 :hidden true}]}))
 
-(defn date-html
+(defn render-date
   [game]
   (dom/span #js {:className "date"}
             (:date game)))
 
-(defn attending-count-html
+(defn render-attending-count
   [game]
   (dom/span #js {:className "attending"}
     (count (:attending game))))
 
-(defn attendee-html
+(defn render-attendee
   [attendee]
   (dom/li nil (:name attendee)))
 
-(defn attendees-html
+(defn render-attendees
   [game]
   ; TODO: check goog/css for classname manipulation utils
   (apply dom/ul #js {:className (str "attendees" (if (:hidden game) " hide" ""))}
-         (map attendee-html (:attending game))))
-
-
-(defn show-button-html
-  [toggle-chan]
-  (fn [game]
-    (dom/button #js {:onClick (fn [e] 
-                                (put! toggle-chan (:index game)))} 
-                "Show attending")))
-
-(defn game-html 
-  [{:keys [toggle-chan]}]
-  (fn [game]
-    (juxt 
-      date-html 
-      attending-count-html 
-      (show-button-html toggle-chan) 
-      attendees-html))
-  
+         (map render-attendee (:attending game))))
 
 (defn game-view 
   [game owner]
   (reify
     om/IRenderState
-    (render-state [this {:keys [channels] :as channels}]
-      (apply dom/li nil
-             ((game-html channels) game))))
+    (render-state [this {:keys [toggle-chan]}]
+      (dom/li nil
+        (render-date game) 
+        (render-attending-count game)
+        (dom/button #js {:onClick (fn [e] 
+                                    (put! toggle-chan (:index game)))} 
+                    "Show attending")
+        (render-attendees game)))))
 
 (defn- assoc-with-indices [coll]
   (map-indexed (fn [i item] (assoc item :index i)) coll))
 
-(defn game-list-view
+(defn render-game-list
   [app owner]
   (reify
     om/IInitState
@@ -96,9 +81,9 @@
       (apply dom/ul nil 
             (om/build-all game-view 
                           (assoc-with-indices (:games app))
-                          {:init-state {:channels {:toggle-chan toggle-chan}}})))))
+                          {:init-state {:toggle-chan toggle-chan}})))))
 
 (om/root 
-  game-list-view
+  render-game-list
   app-state
   {:target (. js/document getElementById "app")})
