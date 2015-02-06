@@ -29,6 +29,8 @@
   [{:keys [attended rsvpd]}]
   (/ attended rsvpd))
 
+(defn two-decimals [n] (goog.string.format "%.2f" n))
+
 (defn game-likelihood
   ; Currently, this is the likelihood that *all players* will
   ; attend a given game. Really, we should allow each player to
@@ -46,7 +48,7 @@
 (defn render-likelihood
   [game]
   (dom/span #js {:className "likelihood"}
-            (goog.string.format "%.2f" (game-likelihood game))))
+            (two-decimals (game-likelihood game))))
 
 (defn render-attending-count
   [game]
@@ -55,9 +57,10 @@
 
 (defn render-attendee
   [attendee]
-  (dom/li nil (:name attendee) 
+  (dom/li nil 
+          (:name attendee) 
           (dom/span #js {:className "flake-rate"}
-                    (attendance-rate attendee))))
+                    (two-decimals (attendance-rate attendee)))))
 
 (defn render-attendees
   [game]
