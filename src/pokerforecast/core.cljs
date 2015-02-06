@@ -1,7 +1,6 @@
 (ns pokerforecast.core
   (:require-macros [cljs.core.async.macros :refer [go]])
   (:require [clojure.browser.repl :as repl]
-            [pokerforecast.input]
             [om.dom :as dom :include-macros true]
             [om.core :as om :include-macros true]
             [cljs.core.async :refer [put! chan <!]]))
