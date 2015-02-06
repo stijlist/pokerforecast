@@ -10,6 +10,14 @@ li.new {
   list-style: none
 }
 
+span.flake-rate {
+  margin: 0.5em
+}
+
+span.likelihood {
+  margin: 0.5em;
+}
+
 span.attending {
   color: grey;
   margin: 0.5em

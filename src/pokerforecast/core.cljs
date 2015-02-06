@@ -4,6 +4,7 @@
             [om.dom :as dom :include-macros true]
             [om.core :as om :include-macros true]
             [cljs.core.async :refer [put! chan <!]]
+            [goog.string.format]
             [goog.events :as events]))
 
 (enable-console-print!)
@@ -24,11 +25,28 @@
                                              :rsvpd 1
                                              :attended 1}]
                                 :hidden true}]}))
+(defn attendance-rate
+  [{:keys [attended rsvpd]}]
+  (/ attended rsvpd))
+
+(defn game-likelihood
+  ; Currently, this is the likelihood that *all players* will
+  ; attend a given game. Really, we should allow each player to
+  ; specify their minimum threshold for attending, sort-by the
+  ; players who are most likely to attend, and try and solve for
+  ; some configuration that maximizes likelihood.
+  [game]
+  (reduce (comp * attendance-rate) (:attending game)))
 
 (defn render-date
   [game]
   (dom/span #js {:className "date"}
             (:date game)))
+
+(defn render-likelihood
+  [game]
+  (dom/span #js {:className "likelihood"}
+            (goog.string.format "%.2f" (game-likelihood game))))
 
 (defn render-attending-count
   [game]
@@ -37,7 +55,9 @@
 
 (defn render-attendee
   [attendee]
-  (dom/li nil (:name attendee)))
+  (dom/li nil (:name attendee) 
+          (dom/span #js {:className "flake-rate"}
+                    (attendance-rate attendee))))
 
 (defn render-attendees
   [game]
@@ -52,9 +72,9 @@
     (render-state [this {:keys [toggle-chan]}]
       (dom/li nil
         (render-date game) 
+        (render-likelihood game)
         (render-attending-count game)
-        (dom/button #js {:onClick (fn [e] 
-                                    (put! toggle-chan (:index game)))} 
+        (dom/button #js {:onClick #(put! toggle-chan (:index game))} 
                     "Show attending")
         (render-attendees game)))))
 

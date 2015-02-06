@@ -13,4 +13,4 @@ goog.addDependency("../cljs/core/async/impl/ioc_helpers.js", ['cljs.core.async.i
 goog.addDependency("../cljs/core/async/impl/timers.js", ['cljs.core.async.impl.timers'], ['cljs.core.async.impl.channels', 'cljs.core.async.impl.dispatch', 'cljs.core', 'cljs.core.async.impl.protocols']);
 goog.addDependency("../cljs/core/async.js", ['cljs.core.async'], ['cljs.core.async.impl.channels', 'cljs.core.async.impl.dispatch', 'cljs.core', 'cljs.core.async.impl.buffers', 'cljs.core.async.impl.protocols', 'cljs.core.async.impl.ioc_helpers', 'cljs.core.async.impl.timers']);
 goog.addDependency("../om/core.js", ['om.core'], ['goog.dom', 'cljs.core', 'om.dom', 'cljsjs.react', 'goog.ui.IdGenerator']);
-goog.addDependency("../pokerforecast/core.js", ['pokerforecast.core'], ['clojure.browser.repl', 'cljs.core', 'om.dom', 'cljs.core.async', 'om.core', 'goog.events']);
+goog.addDependency("../pokerforecast/core.js", ['pokerforecast.core'], ['clojure.browser.repl', 'cljs.core', 'om.dom', 'cljs.core.async', 'goog.string.format', 'om.core', 'goog.events']);
