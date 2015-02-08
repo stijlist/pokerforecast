@@ -38,7 +38,7 @@
 
 (defn powerset
   [coll]
-  (if-not (seq coll) [[]] ; maybe use empty set instead?
+  (if-not (seq coll) [#{}] ; maybe use empty set instead?
     (let [rest-powerset (powerset (rest coll))]
       (concat (map #(conj % (first coll)) rest-powerset) rest-powerset))))
 
@@ -132,11 +132,10 @@
     (render-state [this {:keys [toggle-chan]}]
       (apply dom/ul nil 
             (om/build-all game-view 
-                          (->> (:games app)
-                               assoc-with-indices
-                               inspect
-                               (map (partial assoc-with-players (:players app)))
-                               inspect)
+                          (->> 
+                            (:games app)
+                            assoc-with-indices
+                            (map (partial assoc-with-players (:players app))))
                           {:init-state {:toggle-chan toggle-chan}})))))
 
 (om/root 
