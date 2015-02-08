@@ -48,7 +48,7 @@
        (map attendance-rate)
        (reduce *)))
 
-(defn all-thresholds-satisfied [attendees]
+(defn enough-players [attendees]
   (>= 
     (count attendees)
     (apply max (map :threshold attendees))))
@@ -58,8 +58,8 @@
 
 (defn maximum-game-likelihood 
   [{:keys [attending]}]
-  (->> (powerset attending)
-       (filter all-thresholds-satisfied)
+  (->> (powerset attending) ; all combinations of folks that might show up
+       (filter enough-players)
        (map game-likelihood)
        (apply max)
        (default 0)))
