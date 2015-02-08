@@ -1,5 +1,5 @@
 (ns pokerforecast.core
-  (:require-macros [cljs.core.async.macros :refer [go]])
+  (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [clojure.browser.repl :as repl]
             [om.dom :as dom :include-macros true]
             [om.core :as om :include-macros true]
@@ -83,7 +83,7 @@
 (defn render-attending-count
   [game]
   (dom/span #js {:className "attending"}
-    (count (:attending game))))
+            (count (:attending game))))
 
 (defn render-attendee
   [attendee]
@@ -123,14 +123,14 @@
     om/IInitState
     (init-state [_]
       {:toggle-chan (chan)})
+
     om/IWillMount
     (will-mount [this]
       (let [toggle-chan (om/get-state owner :toggle-chan)]
-        (go 
-          (loop []
-            (let [game-index (<! toggle-chan)]
-              (om/transact! app [:games game-index :hidden] not))
-            (recur)))))
+        (go-loop [] 
+          (om/transact! app [:games (<! toggle-chan) :hidden] not)
+          (recur))))
+
     om/IRenderState
     (render-state [this {:keys [toggle-chan]}]
       (apply dom/ul nil 
@@ -143,12 +143,14 @@
 
 (defn render-login-form
   [app owner]
-  (om/component
-    (dom/div #js {:id "login-form-container"}
-             (dom/form #js {:action "login"})
-             (dom/label nil "Email")
-             (dom/input #js {:type "email" :name "email"})
-             (dom/input #js {:type "submit"}))))
+  (reify
+    om/IRender
+    (render [this]
+      (dom/div #js {:id "login-form-container"}
+               (dom/form #js {:action "login"})
+               (dom/label nil "Email")
+               (dom/input #js {:type "email" :name "email"})
+               (dom/input #js {:type "submit"})))))
 
 (defn render-app
   [app owner]
