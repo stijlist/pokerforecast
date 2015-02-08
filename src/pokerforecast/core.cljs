@@ -34,7 +34,7 @@
 
 (defn attendance-rate
   [{:keys [attended rsvpd]}]
-  (/ attended rsvpd))
+  (if (= 0 rsvpd) nil (/ attended rsvpd)))
 
 (defn powerset
   [coll]
@@ -85,12 +85,14 @@
   (dom/span #js {:className "attending"}
             (count (:attending game))))
 
-(defn render-attendee
+(defn render-attendee ; TODO: s/attendee/player
   [attendee]
   (dom/li nil 
           (dom/span #js {:className "attendee"} (:name attendee)) 
-          (dom/span #js {:className "flake-rate"}
-                    (as-percentage (flake-rate attendee)))))
+          (if (> (:rsvpd (inspect attendee)) 0)
+            (dom/span #js {:className "flake-rate"}
+                      (as-percentage (flake-rate attendee)))
+            (dom/span #js {:className "no-flake-rate"}))))
 
 (defn render-attendees
   [game]
@@ -146,10 +148,10 @@
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
 
 (defn add-player [app owner]
-  (let [next-id (->> (:players app) keys (apply max) inc)]
+  (let [next-id (inc (apply max (keys (:players app))))]
     (om/transact! app :players
-      #(inspect (assoc % next-id 
-                       (fresh-player (node-vals owner "name" "threshold")))))))
+      #(assoc % next-id 
+              (fresh-player (node-vals owner "name" "threshold"))))))
 
 (defn render-login-form
   [app owner]
@@ -165,12 +167,21 @@
                (dom/input #js {:type "submit" 
                                :onClick #(add-player app owner)})))))
 
+(defn render-player-list
+  [app owner]
+  (om/component
+    (dom/div nil
+      (dom/h3 nil "Registered Players")
+      (apply dom/div nil
+             (map render-attendee (vals (:players app)))))))
+
 (defn render-app
   [app owner]
   (om/component
     (dom/div nil
       (om/build render-login-form app)
-      (om/build render-game-list app))))
+      (om/build render-game-list app)
+      (om/build render-player-list app))))
 
 (om/root 
   render-app

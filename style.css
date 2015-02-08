@@ -22,6 +22,13 @@ span.flake-rate::after {
   content: "% flake rate"
 }
 
+span.no-flake-rate {
+  margin: 0.5em
+}
+span.no-flake-rate::after {
+  content: "No data yet."
+}
+
 span.likelihood {
   margin: 0.5em;
 }
