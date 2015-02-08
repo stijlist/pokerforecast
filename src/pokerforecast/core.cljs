@@ -110,15 +110,16 @@
                     "Show attending")
         (render-attendees game)))))
 
-(defn- assoc-with-indices [coll]
+(defn- with-indices [coll]
   (map-indexed (fn [i item] (assoc item :index i)) coll))
 
-(defn- assoc-with-players 
-  [players game]
-  (update-in game [:attending] (partial mapv (partial get players))))
+(defn- with-players [players games]
+  (map 
+    #(update-in % [:attending] (partial mapv (partial get players))) 
+    games))
 
 (defn render-game-list
-  [app owner]
+  [{:keys [players games] :as app} owner]
   (reify
     om/IInitState
     (init-state [_]
@@ -135,10 +136,7 @@
     (render-state [this {:keys [toggle-chan]}]
       (apply dom/ul nil 
             (om/build-all game-view 
-                          (->> 
-                            (:games app)
-                            assoc-with-indices
-                            (map (partial assoc-with-players (:players app))))
+                          (->> games with-indices (with-players players))
                           {:init-state {:toggle-chan toggle-chan}})))))
 
 (defn render-login-form
