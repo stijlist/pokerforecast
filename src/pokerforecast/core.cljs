@@ -10,29 +10,27 @@
 (defn inspect [thing] (println thing) thing)
 
 (def app-state (atom {:games [{:date "Monday, January 18"
-                                :attending [{:name "James"
-                                             :rsvpd 3
-                                             :attended 2
-                                             :threshold 3}
-                                            {:name "Nick"
-                                             :rsvpd 1
-                                             :attended 1
-                                             :threshold 4}]
+                                :attending [1 2]
                                 :hidden true}
                                {:date "Tuesday, January 19"
-                                :attending [{:name "Bert"
-                                             :rsvpd 2
-                                             :attended 1
-                                             :threshold 2}
-                                            {:name "Max"
-                                             :rsvpd 1
-                                             :attended 1
-                                             :threshold 3}
-                                            {:name "James"
-                                             :rsvpd 3
-                                             :attended 2
-                                             :threshold 3}]
-                                :hidden true}]}))
+                                :attending [3 4 1]
+                                :hidden true}]
+                      :players {1 {:name "James"
+                                   :rsvpd 3
+                                   :attended 2
+                                   :threshold 3}
+                                2 {:name "Nick"
+                                   :rsvpd 1
+                                   :attended 1
+                                   :threshold 4}
+                                3 {:name "Bert"
+                                   :rsvpd 2
+                                   :attended 1
+                                   :threshold 2}
+                                4 {:name "Max"
+                                   :rsvpd 1
+                                   :attended 1
+                                   :threshold 3}}}))
 
 (defn attendance-rate
   [{:keys [attended rsvpd]}]
@@ -112,6 +110,10 @@
 (defn- assoc-with-indices [coll]
   (map-indexed (fn [i item] (assoc item :index i)) coll))
 
+(defn- assoc-with-players 
+  [players game]
+  (update-in game [:attending] (partial mapv (partial get players))))
+
 (defn render-game-list
   [app owner]
   (reify
@@ -130,7 +132,11 @@
     (render-state [this {:keys [toggle-chan]}]
       (apply dom/ul nil 
             (om/build-all game-view 
-                          (assoc-with-indices (:games app))
+                          (->> (:games app)
+                               assoc-with-indices
+                               inspect
+                               (map (partial assoc-with-players (:players app)))
+                               inspect)
                           {:init-state {:toggle-chan toggle-chan}})))))
 
 (om/root 
