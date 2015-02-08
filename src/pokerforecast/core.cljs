@@ -53,16 +53,19 @@
     (count attendees)
     (apply max (map :threshold attendees))))
 
+(defn default [d input]
+  (if (nil? input) d input))
+
 (defn maximum-game-likelihood 
   [{:keys [attending]}]
   (->> (powerset attending)
        (filter all-thresholds-satisfied)
        (map game-likelihood)
-       (apply max)))
+       (apply max)
+       (default 0)))
 
-;; only special-casing nil right now because max-game-likelihood can return nil
 (defn as-percentage [n] 
-  (if n (.toFixed (* n 100)) 0))
+  (.toFixed (* n 100)))
 
 (defn flake-rate [attendee]
   (- 1 (attendance-rate attendee)))
@@ -153,7 +156,6 @@
     (dom/div nil
       (om/build render-login-form app)
       (om/build render-game-list app))))
-
 
 (om/root 
   render-app
