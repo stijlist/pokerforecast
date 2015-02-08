@@ -139,6 +139,18 @@
                           (->> games with-indices (with-players players))
                           {:init-state {:toggle-chan toggle-chan}})))))
 
+(defn fresh-player [[new-name threshold]]
+  (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
+
+(defn node-vals [owner & node-names]
+  (map (comp #(.-value %) (partial om/get-node owner)) node-names))
+
+(defn add-player [app owner]
+  (let [next-id (->> (:players app) keys (apply max) inc)]
+    (om/transact! app :players
+      #(inspect (assoc % next-id 
+                       (fresh-player (node-vals owner "name" "threshold")))))))
+
 (defn render-login-form
   [app owner]
   (reify
@@ -146,9 +158,12 @@
     (render [this]
       (dom/div #js {:id "login-form-container"}
                (dom/form #js {:action "login"})
-               (dom/label nil "Email")
-               (dom/input #js {:type "email" :name "email"})
-               (dom/input #js {:type "submit"})))))
+               (dom/label nil "Name")
+               (dom/input #js {:type "text" :ref "name"})
+               (dom/label nil "Minimum game size")
+               (dom/input #js {:type "number" :ref "threshold"})
+               (dom/input #js {:type "submit" 
+                               :onClick #(add-player app owner)})))))
 
 (defn render-app
   [app owner]
