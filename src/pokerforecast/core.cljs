@@ -138,7 +138,14 @@
                             (map (partial assoc-with-players (:players app))))
                           {:init-state {:toggle-chan toggle-chan}})))))
 
+(defn render-app
+  [app owner]
+  (om/component
+    (dom/div nil
+             (om/build render-game-list app))))
+
+
 (om/root 
-  render-game-list
+  render-app
   app-state
   {:target (. js/document getElementById "app")})
