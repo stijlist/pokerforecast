@@ -138,11 +138,21 @@
                             (map (partial assoc-with-players (:players app))))
                           {:init-state {:toggle-chan toggle-chan}})))))
 
+(defn render-login-form
+  [app owner]
+  (om/component
+    (dom/div #js {:id "login-form-container"}
+             (dom/form #js {:action "login"})
+             (dom/label nil "Email")
+             (dom/input #js {:type "email" :name "email"})
+             (dom/input #js {:type "submit"}))))
+
 (defn render-app
   [app owner]
   (om/component
     (dom/div nil
-             (om/build render-game-list app))))
+      (om/build render-login-form app)
+      (om/build render-game-list app))))
 
 
 (om/root 
