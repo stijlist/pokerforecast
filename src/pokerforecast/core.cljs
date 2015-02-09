@@ -164,7 +164,7 @@
       #(assoc % next-id 
               (fresh-player (node-vals owner "name" "email" "threshold"))))))
 
-(defn render-login-form
+(defn render-new-player-form
   [app owner]
   (reify
     om/IRenderState
@@ -172,9 +172,9 @@
       (dom/div nil
         (dom/button #js {:onClick #(if hidden 
                                      (om/set-state! owner :hidden false))} 
-                         "Log in")
-        (dom/div #js {:id "login-form-container" :className (hide-if hidden)}
-                 (dom/form #js {:action "login"})
+                         "Create account")
+        (dom/div #js {:className (hide-if hidden)}
+                 #_(dom/form nil)
                  (dom/label nil "Name")
                  (dom/input #js {:type "text" :ref "name"})
                  (dom/label nil "Email")
@@ -196,7 +196,7 @@
   [app owner]
   (om/component
     (dom/div nil
-      (om/build render-login-form app {:init-state {:hidden true}})
+      (om/build render-new-player-form app {:init-state {:hidden true}})
       (om/build render-game-list app)
       (om/build render-player-list app))))
 
