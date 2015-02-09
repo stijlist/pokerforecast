@@ -152,17 +152,15 @@
                           (->> games with-indices (with-players players))
                           {:init-state {:toggle-chan toggle-chan}})))))
 
-(defn fresh-player [[new-name email threshold]]
+(defn fresh-player [new-name email threshold]
   (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
 
 (defn node-vals [owner & node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
 
-(defn add-player [app owner]
-  (let [next-id (inc (apply max (keys (:players app))))]
-    (om/transact! app :players
-      #(assoc % next-id 
-              (fresh-player (node-vals owner "name" "email" "threshold"))))))
+(defn add-player [player existing]
+  (let [next-id (inc (apply max (keys existing)))]
+    (assoc existing next-id player)))
 
 (defn render-new-player-form
   [app owner]
@@ -176,7 +174,10 @@
         (dom/div #js {:className (hide-if hidden)}
                  (dom/form #js {:onSubmit (fn [e] 
                                             (.preventDefault e)
-                                            (add-player app owner))}
+                                            (om/transact! app :players
+                                              (->> (node-vals owner "name" "email" "threshold")
+                                                (apply fresh-player)
+                                                (partial add-player))))}
                    (dom/label nil "Name")
                    (dom/input #js {:type "text" :ref "name"})
                    (dom/label nil "Email")
