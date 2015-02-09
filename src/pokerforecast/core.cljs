@@ -174,15 +174,16 @@
                                      (om/set-state! owner :hidden false))} 
                          "Create account")
         (dom/div #js {:className (hide-if hidden)}
-                 #_(dom/form nil)
-                 (dom/label nil "Name")
-                 (dom/input #js {:type "text" :ref "name"})
-                 (dom/label nil "Email")
-                 (dom/input #js {:type "text" :ref "email"})
-                 (dom/label nil "Minimum game size")
-                 (dom/input #js {:type "number" :ref "threshold"})
-                 (dom/input #js {:type "submit" 
-                                 :onClick #(add-player app owner)}))))))
+                 (dom/form #js {:onSubmit (fn [e] 
+                                            (.preventDefault e)
+                                            (add-player app owner))}
+                   (dom/label nil "Name")
+                   (dom/input #js {:type "text" :ref "name"})
+                   (dom/label nil "Email")
+                   (dom/input #js {:type "text" :ref "email"})
+                   (dom/label nil "Minimum game size")
+                   (dom/input #js {:type "number" :ref "threshold"})
+                   (dom/input #js {:type "submit" })))))))
 
 (defn render-player-list
   [app owner]
