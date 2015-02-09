@@ -17,20 +17,25 @@
                                 :hidden true}]
                       :players {1 {:name "James"
                                    :rsvpd 3
+                                   :email "yolo@swag.com"
                                    :attended 2
                                    :threshold 3}
                                 2 {:name "Nick"
                                    :rsvpd 1
+                                   :email "foo@bar.com"
                                    :attended 1
                                    :threshold 4}
                                 3 {:name "Bert"
+                                   :email "blah@blah.com"
                                    :rsvpd 2
                                    :attended 1
                                    :threshold 2}
                                 4 {:name "Max"
+                                   :email "some@thing.com"
                                    :rsvpd 1
                                    :attended 1
-                                   :threshold 3}}}))
+                                   :threshold 3}}
+                      :logged-in-user nil}))
 
 (defn attendance-rate
   [{:keys [attended rsvpd]}]
@@ -38,7 +43,7 @@
 
 (defn powerset
   [coll]
-  (if-not (seq coll) [#{}] ; maybe use empty set instead?
+  (if-not (seq coll) [[]]
     (let [rest-powerset (powerset (rest coll))]
       (concat (map #(conj % (first coll)) rest-powerset) rest-powerset))))
 
@@ -85,11 +90,11 @@
   (dom/span #js {:className "attending"}
             (count (:attending game))))
 
-(defn render-attendee ; TODO: s/attendee/player
+(defn render-player
   [attendee]
   (dom/li nil 
           (dom/span #js {:className "attendee"} (:name attendee)) 
-          (if (> (:rsvpd (inspect attendee)) 0)
+          (if (> (:rsvpd attendee) 0)
             (dom/span #js {:className "flake-rate"}
                       (as-percentage (flake-rate attendee)))
             (dom/span #js {:className "no-flake-rate"}))))
@@ -97,7 +102,7 @@
 (defn render-attendees
   [game]
   (apply dom/ul #js {:className (str "attendees" (if (:hidden game) " hide" ""))}
-         (map render-attendee (:attending game))))
+         (map render-player (:attending game))))
 
 (defn game-view 
   [game owner]
@@ -141,7 +146,7 @@
                           (->> games with-indices (with-players players))
                           {:init-state {:toggle-chan toggle-chan}})))))
 
-(defn fresh-player [[new-name threshold]]
+(defn fresh-player [[new-name email threshold]]
   (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
 
 (defn node-vals [owner & node-names]
@@ -151,17 +156,19 @@
   (let [next-id (inc (apply max (keys (:players app))))]
     (om/transact! app :players
       #(assoc % next-id 
-              (fresh-player (node-vals owner "name" "threshold"))))))
+              (fresh-player (node-vals owner "name" "email" "threshold"))))))
 
 (defn render-login-form
   [app owner]
   (reify
-    om/IRender
-    (render [this]
-      (dom/div #js {:id "login-form-container"}
+    om/IRenderState
+    (render-state [this state]
+      (dom/div #js {:id "login-form-container" :className "hide"}
                (dom/form #js {:action "login"})
                (dom/label nil "Name")
                (dom/input #js {:type "text" :ref "name"})
+               (dom/label nil "Email")
+               (dom/input #js {:type "text" :ref "email"})
                (dom/label nil "Minimum game size")
                (dom/input #js {:type "number" :ref "threshold"})
                (dom/input #js {:type "submit" 
@@ -173,7 +180,7 @@
     (dom/div nil
       (dom/h3 nil "Registered Players")
       (apply dom/div nil
-             (map render-attendee (vals (:players app)))))))
+             (map render-player (vals (:players app)))))))
 
 (defn render-app
   [app owner]
