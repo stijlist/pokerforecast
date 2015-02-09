@@ -75,6 +75,12 @@
 (defn flake-rate [attendee]
   (- 1 (attendance-rate attendee)))
 
+(defn hide-if [hidden?]
+  (if hidden? "hide" ""))
+
+(defn classes [& cs]
+  (apply str (interpose " " cs)))
+
 (defn render-date
   [game]
   (dom/span #js {:className "date"}
@@ -101,7 +107,7 @@
 
 (defn render-attendees
   [game]
-  (apply dom/ul #js {:className (str "attendees" (if (:hidden game) " hide" ""))}
+  (apply dom/ul #js {:className (classes "attendees" (hide-if (:hidden game)))}
          (map render-player (:attending game))))
 
 (defn game-view 
@@ -162,17 +168,21 @@
   [app owner]
   (reify
     om/IRenderState
-    (render-state [this state]
-      (dom/div #js {:id "login-form-container" :className "hide"}
-               (dom/form #js {:action "login"})
-               (dom/label nil "Name")
-               (dom/input #js {:type "text" :ref "name"})
-               (dom/label nil "Email")
-               (dom/input #js {:type "text" :ref "email"})
-               (dom/label nil "Minimum game size")
-               (dom/input #js {:type "number" :ref "threshold"})
-               (dom/input #js {:type "submit" 
-                               :onClick #(add-player app owner)})))))
+    (render-state [this {:keys [hidden] :as state}]
+      (dom/div nil
+        (dom/button #js {:onClick #(if hidden 
+                                     (om/set-state! owner :hidden false))} 
+                         "Log in")
+        (dom/div #js {:id "login-form-container" :className (hide-if hidden)}
+                 (dom/form #js {:action "login"})
+                 (dom/label nil "Name")
+                 (dom/input #js {:type "text" :ref "name"})
+                 (dom/label nil "Email")
+                 (dom/input #js {:type "text" :ref "email"})
+                 (dom/label nil "Minimum game size")
+                 (dom/input #js {:type "number" :ref "threshold"})
+                 (dom/input #js {:type "submit" 
+                                 :onClick #(add-player app owner)}))))))
 
 (defn render-player-list
   [app owner]
@@ -186,7 +196,7 @@
   [app owner]
   (om/component
     (dom/div nil
-      (om/build render-login-form app)
+      (om/build render-login-form app {:init-state {:hidden true}})
       (om/build render-game-list app)
       (om/build render-player-list app))))
 
