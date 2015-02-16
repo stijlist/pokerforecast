@@ -43,14 +43,16 @@
 
 (defn powerset
   [coll]
-  (if-not (seq coll) [[]]
+  (if-not (seq coll) 
+    [[]]
     (let [rest-powerset (powerset (rest coll))]
       (concat (map #(conj % (first coll)) rest-powerset) rest-powerset))))
 
 (defn game-likelihood
   [attendees]
   (->> attendees
-       (map attendance-rate)
+       (map attendance-rate) ; what do we do with unknown attendance rates?
+       (filter (comp not nil?))
        (reduce *)))
 
 (defn enough-players [attendees]
