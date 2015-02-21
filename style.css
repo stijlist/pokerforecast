@@ -42,6 +42,9 @@ span.attending {
   margin: 0.5em
 }
 
+.in-attendance { color: green }
+.in-attendance::after { content: " (You're going)" }
+
 span.attending::before { content: "(" }
 span.attending::after { content: " rsvp'd)" }
 

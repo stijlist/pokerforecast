@@ -17,8 +17,7 @@
 
 (defn- render-date
   [game]
-  (html [:span {:class "date"}
-    (:date game)]))
+  (html [:span {:class "date"} (:date game)]))
 
 (defn- render-likelihood
   [game]
@@ -45,12 +44,15 @@
   (html [:ul {:class (classes "attendees" (hide-if hidden))}
     (map render-player (:attending game))]))
 
+(defn- currently-attending [{:keys [attending current-user]}]
+  (some #{current-user} attending))
+
 (defn- game-view 
   [game owner]
   (reify
     om/IRenderState
     (render-state [this {:keys [hidden]}]
-      (html [:li 
+      (html [:li {:class (if (currently-attending game) "in-attendance")}
              (render-date game) 
              (render-likelihood game)
              (render-attending-count game)
@@ -62,6 +64,9 @@
   (map 
     #(update-in % [:attending] (partial mapv (partial get players))) 
     games))
+
+(defn- with-current-user [user games]
+  (map #(assoc % :current-user user) games))
 
 (defn- fresh-player [new-name email threshold]
   (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
@@ -75,14 +80,17 @@
   (conj existing {:date date :players [] :hidden true}))
 
 (defn- game-list
-  [{:keys [players games] :as app} owner]
+  [{:keys [players games logged-in-user] :as app} owner]
   (reify
     om/IRenderState
     (render-state [this state]
       (html 
         [:ul 
          (om/build-all game-view 
-           (->> games (with-players players)) {:init-state {:hidden true}})]))))
+           ;; TODO: collect multiple cursors in a map and pass them to game-view
+           ;; instead of associng new data with each game ad-hoc
+           (->> games (with-players players) (with-current-user logged-in-user)) 
+           {:init-state {:hidden true}})]))))
 
 (defn- node-vals [owner node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
