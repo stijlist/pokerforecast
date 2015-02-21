@@ -1,48 +1,51 @@
 (ns pokerforecast.view
   (:require [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
-            [pokerforecast.core :as forecast]))
+            [pokerforecast.core :as forecast]
+            [pokerforecast.state :refer [app-state]]))
 
-(defn hide-if [hidden?]
+(defn- inspect [thing] (println thing) thing)
+
+(defn- hide-if [hidden?]
   (if hidden? "hide" ""))
 
-(defn classes [& cs]
+(defn- classes [& cs]
   (apply str (interpose " " cs)))
 
-(defn as-percentage [n] 
+(defn- as-percentage [n] 
   (.toFixed (* n 100)))
 
-(defn render-date
+(defn- render-date
   [game]
-  (html [:span {:className "date"}
+  (html [:span {:class "date"}
     (:date game)]))
 
-(defn render-likelihood
+(defn- render-likelihood
   [game]
   (html [:span {:class "likelihood"}
          (as-percentage 
            (forecast/maximum-game-likelihood game))]))
 
-(defn render-attending-count
+(defn- render-attending-count
   [game]
-  (html [:span {:className "attending"}
+  (html [:span {:class "attending"}
     (count (:attending game))]))
 
-(defn render-player
+(defn- render-player
   [attendee]
   (html [:li 
-    [:span {:className "attendee"} (:name attendee)] 
+    [:span {:class "attendee"} (:name attendee)] 
     (if (> (:rsvpd attendee) 0)
-      [:span {:className "flake-rate"}
+      [:span {:class "flake-rate"}
        (as-percentage (forecast/flake-rate attendee))]
-      [:span {:className "no-flake-rate"}])]))
+      [:span {:class "no-flake-rate"}])]))
 
-(defn render-attendees
+(defn- render-attendees
   [game hidden]
-  (html [:ul {:className (classes "attendees" (hide-if hidden))}
+  (html [:ul {:class (classes "attendees" (hide-if hidden))}
     (map render-player (:attending game))]))
 
-(defn game-view 
+(defn- game-view 
   [game owner]
   (reify
     om/IRenderState
@@ -60,7 +63,18 @@
     #(update-in % [:attending] (partial mapv (partial get players))) 
     games))
 
-(defn game-list
+(defn- fresh-player [new-name email threshold]
+  (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
+
+(defn- add-player [player existing]
+  (let [next-id (inc (apply max (keys existing)))]
+    (assoc existing next-id player)))
+
+(defn- add-game
+  [date existing]
+  (conj existing {:date date :players [] :hidden true}))
+
+(defn- game-list
   [{:keys [players games] :as app} owner]
   (reify
     om/IRenderState
@@ -70,16 +84,16 @@
                       (->> games (with-players players))
                       {:init-state {:hidden true}})]))))
 
-(defn node-vals [owner & node-names]
+(defn- node-vals [owner node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
 
-(defn build-form-field
+(defn- build-form-field
   [{:keys [field-name field-type]}] 
   (html [:span 
     [:label field-name]
     [:input {:type field-type :ref field-name}]]))
 
-(defn simple-form 
+(defn- simple-form 
   "Returns a generic hideable form component.
   `form-name` is the text to be used on the button that shows and hides the form.
   `fields` is a vector of maps, containing the keys `field-name` and `field-type`, 
@@ -93,19 +107,17 @@
       om/IRenderState
       (render-state [this {:keys [hidden] :as state}]
         (html [:div 
-               [:button {:onClick #(if hidden 
-                                        (om/set-state! owner :hidden false))}
+               [:button {:onClick #(om/update-state! owner :hidden not)}
                 form-name]
-               [:div {:className (hide-if hidden)}
+               [:div {:class (hide-if hidden)}
                 [:form 
                  {:onSubmit 
-                      (fn [e] 
-                        (.preventDefault e)
-                        (om/transact! app update-path 
-                                      (->>
-                                        (apply node-vals owner (map :field-name fields))
-                                        (partial update-fn)))
-                        (om/set-state! owner :hidden true))}
+                  (fn [e] 
+                    (.preventDefault e)
+                    (om/transact! app update-path 
+                      (partial update-fn 
+                               (node-vals owner (map :field-name fields))))
+                    (om/set-state! owner :hidden true))}
                  (for [field fields] 
                    (build-form-field field))
                  [:input {:type "submit"}]]]])))))
@@ -116,13 +128,6 @@
                                  (first (filter #(= (:email %) email)
                                                 (vals (:players @app-state)))))))
 
-(defn fresh-player [new-name email threshold]
-  (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
-
-(defn add-player [player existing]
-  (let [next-id (inc (apply max (keys existing)))]
-    (assoc existing next-id player)))
-
 (def new-player-form
   (simple-form "Create account" [{:field-name "Name" :field-type "text"}
                                  {:field-name "Email" :field-type "text"}
@@ -130,15 +135,11 @@
                :players (fn [[pname email threshold] existing] 
                           (add-player (fresh-player pname email threshold) existing))))
 
-(defn add-game
-  [date existing]
-  (conj existing {:date date :players [] :hidden true}))
-
 (def new-game-form 
   (simple-form "New game" [{:field-name "Date" :field-type "text"}]
                :games (fn [[date] games] (add-game date games))))
 
-(defn player-list
+(defn- player-list
   [app owner]
   (om/component
     (html [:div 

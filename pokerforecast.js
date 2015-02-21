@@ -10,5 +10,6 @@ goog.addDependency("../sablono/core.js", ['sablono.core'], ['goog.dom', 'sablono
 goog.addDependency("../pokerforecast/core.js", ['pokerforecast.core'], ['cljs.core']);
 goog.addDependency("../om/dom.js", ['om.dom'], ['cljs.core', 'goog.object', 'cljsjs.react']);
 goog.addDependency("../om/core.js", ['om.core'], ['goog.dom', 'cljs.core', 'om.dom', 'cljsjs.react', 'goog.ui.IdGenerator']);
-goog.addDependency("../pokerforecast/view.js", ['pokerforecast.view'], ['cljs.core', 'sablono.core', 'pokerforecast.core', 'om.core']);
-goog.addDependency("../pokerforecast/run.js", ['pokerforecast.run'], ['cljs.core', 'om.core', 'pokerforecast.view']);
+goog.addDependency("../pokerforecast/state.js", ['pokerforecast.state'], ['cljs.core']);
+goog.addDependency("../pokerforecast/view.js", ['pokerforecast.view'], ['cljs.core', 'sablono.core', 'pokerforecast.core', 'om.core', 'pokerforecast.state']);
+goog.addDependency("../pokerforecast/run.js", ['pokerforecast.run'], ['cljs.core', 'om.core', 'pokerforecast.state', 'pokerforecast.view']);
