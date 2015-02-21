@@ -164,6 +164,11 @@
   (let [next-id (inc (apply max (keys existing)))]
     (assoc existing next-id player)))
 
+; fields is a vector of maps, containing the keys field-name and field-type, 
+; which are the label of the field and the dom input type to be used, respectively
+; update-fn takes a vector of values (the values in `fields`, ordered, at the 
+; moment the user hits submit) and the app state at `update-path` and returns 
+; the new app state at `update-path`
 (defn simple-form 
   [form-name fields update-path update-fn]
   (fn [app owner]
@@ -199,38 +204,17 @@
                                  (first (filter #(= (:email %) email)
                                                 (vals (:players @app-state)))))))
 
-(defn new-player-form
-  [app owner]
-  (reify
-    om/IRenderState
-    (render-state [this {:keys [hidden] :as state}]
-      (dom/div nil
-        (dom/button #js {:onClick #(if hidden 
-                                     (om/set-state! owner :hidden false))} 
-                         "Create account")
-        (dom/div #js {:className (hide-if hidden)}
-                 (dom/form #js {:onSubmit (fn [e] 
-                                            (.preventDefault e)
-                                            (om/transact! app :players
-                                              (->> (node-vals owner "name" "email" "threshold")
-                                                (apply fresh-player)
-                                                (partial add-player)))
-                                            (om/set-state! owner :hidden true))}
-                   (dom/label nil "Name")
-                   (dom/input #js {:type "text" :ref "name"})
-                   (dom/label nil "Email")
-                   (dom/input #js {:type "text" :ref "email"})
-                   (dom/label nil "Minimum game size")
-                   (dom/input #js {:type "number" :ref "threshold"})
-                   (dom/input #js {:type "submit" })))))))
+(def new-player-form
+  (simple-form "Create account" [{:field-name "Name" :field-type "text"}
+                                 {:field-name "Email" :field-type "text"}
+                                 {:field-name "Minimum game threshold" :field-type "number"}]
+               :players (fn [[pname email threshold] existing] 
+                          (add-player (fresh-player pname email threshold) existing))))
 
 (defn add-game
   [date existing]
   (conj existing {:date date :players [] :hidden true}))
 
-; tons of duplication between new-player and new-game forms
-; maybe a form-helper is in order, with parameters update-fn & 
-; a map from field-type to field-name
 (defn new-game-form
   [app owner]
   (reify
