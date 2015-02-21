@@ -1,6 +1,5 @@
 (ns pokerforecast.core
   (:require [clojure.browser.repl :as repl]
-            [om.dom :as dom :include-macros true]
             [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]))
 
@@ -86,8 +85,8 @@
 
 (defn render-date
   [game]
-  (dom/span #js {:className "date"}
-            (:date game)))
+  (html [:span {:className "date"}
+    (:date game)]))
 
 (defn render-likelihood
   [game]
@@ -96,35 +95,35 @@
 
 (defn render-attending-count
   [game]
-  (dom/span #js {:className "attending"}
-            (count (:attending game))))
+  (html [:span {:className "attending"}
+    (count (:attending game))]))
 
 (defn render-player
   [attendee]
-  (dom/li nil 
-          (dom/span #js {:className "attendee"} (:name attendee)) 
-          (if (> (:rsvpd attendee) 0)
-            (dom/span #js {:className "flake-rate"}
-                      (as-percentage (flake-rate attendee)))
-            (dom/span #js {:className "no-flake-rate"}))))
+  (html [:li 
+    [:span {:className "attendee"} (:name attendee)] 
+    (if (> (:rsvpd attendee) 0)
+      [:span {:className "flake-rate"}
+       (as-percentage (flake-rate attendee))]
+      [:span {:className "no-flake-rate"}])]))
 
 (defn render-attendees
   [game hidden]
-  (apply dom/ul #js {:className (classes "attendees" (hide-if hidden))}
-         (map render-player (:attending game))))
+  (html [:ul {:className (classes "attendees" (hide-if hidden))}
+    (map render-player (:attending game))]))
 
 (defn game-view 
   [game owner]
   (reify
     om/IRenderState
     (render-state [this {:keys [hidden]}]
-      (dom/li nil
-        (render-date game) 
-        (render-likelihood game)
-        (render-attending-count game)
-        (dom/button #js {:onClick #(om/update-state! owner :hidden not)} 
-                    "Show attending")
-        (render-attendees game hidden)))))
+      (html [:li 
+             (render-date game) 
+             (render-likelihood game)
+             (render-attending-count game)
+             [:button {:onClick #(om/update-state! owner :hidden not)} 
+              "Show attending"]
+             (render-attendees game hidden)]))))
 
 (defn- with-players [players games]
   (map 
@@ -136,10 +135,10 @@
   (reify
     om/IRenderState
     (render-state [this state]
-      (apply dom/ul nil 
-            (om/build-all game-view 
-                          (->> games (with-players players))
-                          {:init-state {:hidden true}})))))
+      (html 
+        [:ul (om/build-all game-view 
+                      (->> games (with-players players))
+                      {:init-state {:hidden true}})]))))
 
 (defn node-vals [owner & node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
