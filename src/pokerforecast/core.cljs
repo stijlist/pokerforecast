@@ -189,6 +189,32 @@
                    (dom/input #js {:type "number" :ref "threshold"})
                    (dom/input #js {:type "submit" })))))))
 
+(defn add-game
+  [date existing]
+  (conj existing {:date date :players [] :hidden true}))
+
+; tons of duplication between new-player and new-game forms
+; maybe a form-helper is in order, with parameters update-fn & 
+; a map from field-type to field-name
+(defn new-game-form
+  [app owner]
+  (reify
+    om/IRenderState
+    (render-state [this {:keys [hidden] :as state}]
+      (dom/div nil
+        (dom/button #js {:onClick #(if hidden 
+                                     (om/set-state! owner :hidden false))} 
+                         "New game")
+        (dom/div #js {:className (hide-if hidden)}
+                 (dom/form #js {:onSubmit (fn [e] 
+                                            (.preventDefault e)
+                                            (om/transact! app :games
+                                              (partial add-game
+                                                (.-value (om/get-node owner "date")))))}
+                   (dom/label nil "Date")
+                   (dom/input #js {:type "text" :ref "date"})
+                   (dom/input #js {:type "submit" })))))))
+
 (defn player-list
   [app owner]
   (om/component
@@ -202,6 +228,7 @@
   (om/component
     (dom/div nil
       (om/build new-player-form app {:init-state {:hidden true}})
+      (om/build new-game-form app {:init-state {:hidden true}})
       (om/build game-list app)
       (om/build player-list app))))
 
