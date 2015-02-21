@@ -94,7 +94,7 @@
     [:input {:type field-type :ref field-name}]]))
 
 (defn- simple-form 
-  "Returns a generic hideable form component.
+  "Returns a generic hideable form component that can update app-state.
   `form-name` is the text to be used on the button that shows and hides the form.
   `fields` is a vector of maps, containing the keys `field-name` and `field-type`, 
   which are the field label and the dom input type to be used, respectively.
@@ -146,10 +146,18 @@
            [:h3 "Registered Players"]
            [:div (map render-player (vals (:players app)))]])))
 
+(defn- logged-in-user [app owner]
+  (om/component
+    (html 
+      (if-let [user (:logged-in-user app)]
+        [:div [:span {:class "current-user"} (:name user)]]
+        [:div [:span {:class "no-current-user"}]]))))
+
 (defn render-app
   [app owner]
   (om/component
     (html [:div 
+           (om/build logged-in-user app)
            (om/build new-player-form app {:init-state {:hidden true}})
            (om/build new-game-form app {:init-state {:hidden true}})
            (om/build login-form app {:init-state {:hidden true}})

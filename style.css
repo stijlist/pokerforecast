@@ -45,6 +45,10 @@ span.attending {
 span.attending::before { content: "(" }
 span.attending::after { content: " rsvp'd)" }
 
+span.current-user::before { content: "Logged in as " }
+span.current-user::after { content: "." }
+span.no-current-user::before { content: "Please log in." }
+
 .hide {
   display: none;
 }
