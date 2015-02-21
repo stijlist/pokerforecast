@@ -80,9 +80,9 @@
     om/IRenderState
     (render-state [this state]
       (html 
-        [:ul (om/build-all game-view 
-                      (->> games (with-players players))
-                      {:init-state {:hidden true}})]))))
+        [:ul 
+         (om/build-all game-view 
+           (->> games (with-players players)) {:init-state {:hidden true}})]))))
 
 (defn- node-vals [owner node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
