@@ -96,8 +96,8 @@
   (om/component
     (html [:div 
            (om/build current-user app)
+           (om/build login-form app {:init-state {:hidden true}})
            (om/build new-player-form app {:init-state {:hidden true}})
            (om/build new-game-form app {:init-state {:hidden true}})
-           (om/build login-form app {:init-state {:hidden true}})
            (om/build game-list app)
            (om/build player-list app)])))
