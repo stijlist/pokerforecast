@@ -29,7 +29,7 @@
   (if (nil? input) d input))
 
 (defn maximum-game-likelihood 
-  [{:keys [attending]}]
+  [attending]
   (->> (powerset attending) ; all combinations of folks that might show up
        (filter enough-players)
        (map game-likelihood)

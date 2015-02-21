@@ -15,21 +15,6 @@
 (defn- as-percentage [n] 
   (.toFixed (* n 100)))
 
-(defn- render-date
-  [game]
-  (html [:span {:class "date"} (:date game)]))
-
-(defn- render-likelihood
-  [game]
-  (html [:span {:class "likelihood"}
-         (as-percentage 
-           (forecast/maximum-game-likelihood game))]))
-
-(defn- render-attending-count
-  [game]
-  (html [:span {:class "attending"}
-    (count (:attending game))]))
-
 (defn- render-player
   [attendee]
   (html [:li 
@@ -39,23 +24,25 @@
        (as-percentage (forecast/flake-rate attendee))]
       [:span {:class "no-flake-rate"}])]))
 
-(defn- with-players [players game]
-  (update-in game [:attending] (partial mapv (partial get players))))
+(defn- join-players [players ids]
+  (mapv (partial get players) ids))
 
 (defn- game-view 
   [{:keys [game players current-user]} owner]
   (reify
     om/IRenderState
     (render-state [this {:keys [hidden]}]
-      (let [game (with-players players game)]
+      (let [attending (join-players players (:attending game))]
         (html [:li {:class (if (some #{current-user} (:attending game)) "in-attendance")}
-               (render-date game) 
-               (render-likelihood game)
-               (render-attending-count game)
+               [:span {:class "date"} (:date game)]
+               [:span {:class "likelihood"}
+                        (as-percentage 
+                          (forecast/maximum-game-likelihood attending))]
+               [:span {:class "attending"} (count attending)]
                [:button {:onClick #(om/update-state! owner :hidden not)} 
                 "Show attending"]
                [:ul {:class (classes "attendees" (hide-if hidden))} 
-                (map render-player (:attending game))]])))))
+                (map render-player attending)]])))))
 
 (defn- fresh-player [new-name email threshold]
   (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
