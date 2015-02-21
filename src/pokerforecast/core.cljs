@@ -142,7 +142,7 @@
 (defn node-vals [owner & node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
 
-(defn build-field
+(defn build-form-field
   [{:keys [field-name field-type]}] 
   (html [:span 
     [:label field-name]
@@ -176,7 +176,7 @@
                                         (partial update-fn)))
                         (om/set-state! owner :hidden true))}
                  (for [field fields] 
-                   (build-field field))
+                   (build-form-field field))
                  [:input {:type "submit"}]]]])))))
 
 (def login-form 
