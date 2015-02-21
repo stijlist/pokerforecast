@@ -164,6 +164,41 @@
   (let [next-id (inc (apply max (keys existing)))]
     (assoc existing next-id player)))
 
+(defn simple-form 
+  [form-name fields update-path update-fn]
+  (fn [app owner]
+    (reify
+      om/IRenderState
+      (render-state [this {:keys [hidden] :as state}]
+        (dom/div nil
+          (dom/button #js {:onClick #(if hidden 
+                                       (om/set-state! owner :hidden false))}
+                      form-name)
+          (dom/div #js {:className (hide-if hidden)}
+                   (apply dom/form 
+                          #js {:onSubmit 
+                               (fn [e] 
+                                 (.preventDefault e)
+                                 (om/transact! app update-path 
+                                   (->>
+                                     (apply node-vals owner (map :field-name fields))
+                                     (partial update-fn)))
+                                 (om/set-state! owner :hidden true))}
+                          (conj 
+                            (mapv 
+                              (fn [{:keys [field-name field-type]}] 
+                                (dom/span nil
+                                  (dom/label nil field-name)
+                                  (dom/input #js {:type field-type :ref field-name})))
+                              fields)
+                            (dom/input #js {:type "submit"})))))))))
+
+(def login-form 
+  (simple-form "Login" [{:field-name "email" :field-type "text"}]
+               :logged-in-user (fn [[email] current-user] 
+                                 (first (filter #(= (:email %) email)
+                                                (vals (:players @app-state)))))))
+
 (defn new-player-form
   [app owner]
   (reify
@@ -229,6 +264,7 @@
     (dom/div nil
       (om/build new-player-form app {:init-state {:hidden true}})
       (om/build new-game-form app {:init-state {:hidden true}})
+      (om/build login-form app {:init-state {:hidden true}})
       (om/build game-list app)
       (om/build player-list app))))
 
