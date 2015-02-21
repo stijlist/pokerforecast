@@ -54,12 +54,12 @@
     (render-state [this {:keys [hidden]}]
       (let [game (with-players players game)]
         (html [:li {:class (if (some #{current-user} (:attending game)) "in-attendance")}
-              (render-date game) 
-              (render-likelihood game)
-              (render-attending-count game)
-              [:button {:onClick #(om/update-state! owner :hidden not)} 
-               "Show attending"]
-              (render-attendees game hidden)])))))
+               (render-date game) 
+               (render-likelihood game)
+               (render-attending-count game)
+               [:button {:onClick #(om/update-state! owner :hidden not)} 
+                "Show attending"]
+               (render-attendees game hidden)])))))
 
 (defn- fresh-player [new-name email threshold]
   (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
