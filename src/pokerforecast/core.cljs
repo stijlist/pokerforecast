@@ -133,7 +133,7 @@
     #(update-in % [:attending] (partial mapv (partial get players))) 
     games))
 
-(defn render-game-list
+(defn game-list
   [{:keys [players games] :as app} owner]
   (reify
     om/IInitState
@@ -164,7 +164,7 @@
   (let [next-id (inc (apply max (keys existing)))]
     (assoc existing next-id player)))
 
-(defn render-new-player-form
+(defn new-player-form
   [app owner]
   (reify
     om/IRenderState
@@ -179,7 +179,8 @@
                                             (om/transact! app :players
                                               (->> (node-vals owner "name" "email" "threshold")
                                                 (apply fresh-player)
-                                                (partial add-player))))}
+                                                (partial add-player)))
+                                            (om/set-state! owner :hidden true))}
                    (dom/label nil "Name")
                    (dom/input #js {:type "text" :ref "name"})
                    (dom/label nil "Email")
@@ -188,7 +189,7 @@
                    (dom/input #js {:type "number" :ref "threshold"})
                    (dom/input #js {:type "submit" })))))))
 
-(defn render-player-list
+(defn player-list
   [app owner]
   (om/component
     (dom/div nil
@@ -200,9 +201,9 @@
   [app owner]
   (om/component
     (dom/div nil
-      (om/build render-new-player-form app {:init-state {:hidden true}})
-      (om/build render-game-list app)
-      (om/build render-player-list app))))
+      (om/build new-player-form app {:init-state {:hidden true}})
+      (om/build game-list app)
+      (om/build player-list app))))
 
 (om/root 
   render-app
