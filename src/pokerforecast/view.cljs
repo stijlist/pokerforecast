@@ -38,7 +38,7 @@
                [:span {:class "likelihood"}
                         (as-percentage 
                           (forecast/maximum-game-likelihood attending))]
-               [:span {:class "attending"} (count attending)]
+               [:span {:class "attending-count"} (count attending)]
                [:button {:onClick #(om/update-state! owner :hidden not)} 
                 "Show attending"]
                [:ul {:class (classes "attendees" (hide-if hidden))} 

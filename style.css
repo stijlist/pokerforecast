@@ -37,16 +37,16 @@ span.likelihood::after {
   content: "% chance of poker";
 }
 
-span.attending {
+.in-attendance { color: green }
+.in-attendance::after { content: " (You're going)" }
+
+span.attending-count {
   color: grey;
   margin: 0.5em
 }
 
-.in-attendance { color: green }
-.in-attendance::after { content: " (You're going)" }
-
-span.attending::before { content: "(" }
-span.attending::after { content: " rsvp'd)" }
+span.attending-count::before { content: "(" }
+span.attending-count::after { content: " rsvp'd)" }
 
 span.current-user::before { content: "Logged in as " }
 span.current-user::after { content: "." }
