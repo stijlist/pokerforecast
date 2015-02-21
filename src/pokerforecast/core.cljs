@@ -144,6 +144,12 @@
 (defn node-vals [owner & node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
 
+(defn build-field
+  [{:keys [field-name field-type]}] 
+  (html [:span 
+    [:label field-name]
+    [:input {:type field-type :ref field-name}]]))
+
 (defn simple-form 
   "Returns a generic hideable form component.
   `form-name` is the text to be used on the button that shows and hides the form.
@@ -157,28 +163,23 @@
     (reify
       om/IRenderState
       (render-state [this {:keys [hidden] :as state}]
-        (dom/div nil
-          (dom/button #js {:onClick #(if hidden 
-                                       (om/set-state! owner :hidden false))}
-                      form-name)
-          (dom/div #js {:className (hide-if hidden)}
-                   (apply dom/form 
-                          #js {:onSubmit 
-                               (fn [e] 
-                                 (.preventDefault e)
-                                 (om/transact! app update-path 
-                                   (->>
-                                     (apply node-vals owner (map :field-name fields))
-                                     (partial update-fn)))
-                                 (om/set-state! owner :hidden true))}
-                          (conj 
-                            (mapv 
-                              (fn [{:keys [field-name field-type]}] 
-                                (dom/span nil
-                                  (dom/label nil field-name)
-                                  (dom/input #js {:type field-type :ref field-name})))
-                              fields)
-                            (dom/input #js {:type "submit"})))))))))
+        (html [:div 
+               [:button {:onClick #(if hidden 
+                                        (om/set-state! owner :hidden false))}
+                form-name]
+               [:div {:className (hide-if hidden)}
+                [:form 
+                 {:onSubmit 
+                      (fn [e] 
+                        (.preventDefault e)
+                        (om/transact! app update-path 
+                                      (->>
+                                        (apply node-vals owner (map :field-name fields))
+                                        (partial update-fn)))
+                        (om/set-state! owner :hidden true))}
+                 (for [field fields] 
+                   (build-field field))
+                 [:input {:type "submit"}]]]])))))
 
 (def login-form 
   (simple-form "Login" [{:field-name "email" :field-type "text"}]
@@ -211,20 +212,19 @@
 (defn player-list
   [app owner]
   (om/component
-    (dom/div nil
-      (dom/h3 nil "Registered Players")
-      (apply dom/div nil
-             (map render-player (vals (:players app)))))))
+    (html [:div 
+           [:h3 "Registered Players"]
+           [:div (map render-player (vals (:players app)))]])))
 
 (defn render-app
   [app owner]
   (om/component
-    (dom/div nil
-      (om/build new-player-form app {:init-state {:hidden true}})
-      (om/build new-game-form app {:init-state {:hidden true}})
-      (om/build login-form app {:init-state {:hidden true}})
-      (om/build game-list app)
-      (om/build player-list app))))
+    (html [:div 
+           (om/build new-player-form app {:init-state {:hidden true}})
+           (om/build new-game-form app {:init-state {:hidden true}})
+           (om/build login-form app {:init-state {:hidden true}})
+           (om/build game-list app)
+           (om/build player-list app)])))
 
 (om/root 
   render-app
