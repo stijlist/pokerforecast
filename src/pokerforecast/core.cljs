@@ -215,24 +215,9 @@
   [date existing]
   (conj existing {:date date :players [] :hidden true}))
 
-(defn new-game-form
-  [app owner]
-  (reify
-    om/IRenderState
-    (render-state [this {:keys [hidden] :as state}]
-      (dom/div nil
-        (dom/button #js {:onClick #(if hidden 
-                                     (om/set-state! owner :hidden false))} 
-                         "New game")
-        (dom/div #js {:className (hide-if hidden)}
-                 (dom/form #js {:onSubmit (fn [e] 
-                                            (.preventDefault e)
-                                            (om/transact! app :games
-                                              (partial add-game
-                                                (.-value (om/get-node owner "date")))))}
-                   (dom/label nil "Date")
-                   (dom/input #js {:type "text" :ref "date"})
-                   (dom/input #js {:type "submit" })))))))
+(def new-game-form 
+  (simple-form "New game" [{:field-name "Date" :field-type "text"}]
+               :games (fn [[date] games] (add-game date games))))
 
 (defn player-list
   [app owner]
