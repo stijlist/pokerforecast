@@ -57,17 +57,12 @@
 
 (defn- game-list
   [{:keys [players games current-user] :as app} owner]
-  (reify
-    om/IRenderState
-    (render-state [this state]
-      (html 
-        [:ul 
-         (om/build-all game-view 
-           ;; TODO: collect multiple cursors in a map and pass them to game-view
-           ;; instead of associng new data with each game ad-hoc
-           (->> games 
-                (map (partial hash-map :players players :current-user current-user :game))) 
-           {:init-state {:hidden true}})]))))
+  (om/component
+    (html 
+      [:ul 
+       (om/build-all game-view 
+         (map (partial hash-map :players players :current-user current-user :game) games)
+         {:init-state {:hidden true}})])))
 
 (defn- node-vals [owner node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
