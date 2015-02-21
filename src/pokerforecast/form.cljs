@@ -12,7 +12,7 @@
     [:input {:type type :ref name}]]))
 
 (defn- simple-form 
-  "Returns a generic hideable form component that can update app-state.
+  "Returns a hideable form component that can update app-state.
   `form-name` is the text to be used on the button that shows and hides the form.
   `fields` is a vector of maps, containing the keys `name` and `type`, 
   which are the field label and the dom input type to be used, respectively.
