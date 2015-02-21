@@ -1,6 +1,5 @@
 (ns pokerforecast.core
-  (:require [clojure.browser.repl :as repl]
-            [om.core :as om :include-macros true]
+  (:require [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]))
 
 (enable-console-print!)
