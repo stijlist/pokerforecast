@@ -79,7 +79,7 @@
   (conj existing {:date date :players [] :hidden true}))
 
 (defn- game-list
-  [{:keys [players games logged-in-user] :as app} owner]
+  [{:keys [players games current-user] :as app} owner]
   (reify
     om/IRenderState
     (render-state [this state]
@@ -89,7 +89,7 @@
            ;; TODO: collect multiple cursors in a map and pass them to game-view
            ;; instead of associng new data with each game ad-hoc
            (->> games 
-                (with-current-user logged-in-user) 
+                (with-current-user current-user) 
                 (map (partial hash-map :players players :game))) 
            {:init-state {:hidden true}})]))))
 
@@ -133,7 +133,7 @@
 
 (def login-form 
   (simple-form "Login" [{:field-name "email" :field-type "text"}]
-               :logged-in-user (fn [[email] current-user] 
+               :current-user (fn [[email] current-user] 
                                  (first (filter #(= (:email %) email)
                                                 (vals (:players @app-state)))))))
 
@@ -155,10 +155,10 @@
            [:h3 "Registered Players"]
            [:div (map render-player (vals (:players app)))]])))
 
-(defn- logged-in-user [app owner]
+(defn- current-user [app owner]
   (om/component
     (html 
-      (if-let [user (:logged-in-user app)]
+      (if-let [user (:current-user app)]
         [:div [:span {:class "current-user"} (:name user)]]
         [:div [:span {:class "no-current-user"}]]))))
 
@@ -166,7 +166,7 @@
   [app owner]
   (om/component
     (html [:div 
-           (om/build logged-in-user app)
+           (om/build current-user app)
            (om/build new-player-form app {:init-state {:hidden true}})
            (om/build new-game-form app {:init-state {:hidden true}})
            (om/build login-form app {:init-state {:hidden true}})

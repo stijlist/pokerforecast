@@ -24,4 +24,4 @@
                                    :rsvpd 1
                                    :attended 1
                                    :threshold 3}}
-                      :logged-in-user nil}))
+                      :current-user nil}))
