@@ -2,19 +2,16 @@
   (:require [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
             [pokerforecast.core :as forecast]
-            [pokerforecast.form :refer [simple-form]]
-            [pokerforecast.state :refer [app-state]]))
+            [pokerforecast.form :refer [simple-form]]))
 
 (defn- inspect [thing] (println thing) thing)
 
 (defn- classes [& cs]
   (apply str (interpose " " cs)))
 
-(defn- as-percentage [n] 
-  (.toFixed (* n 100)))
+(defn- as-percentage [n] (.toFixed (* n 100)))
 
-(defn- render-player
-  [attendee]
+(defn- render-player [attendee]
   (html [:li 
     [:span {:class "attendee"} (:name attendee)] 
     (if (> (:rsvpd attendee) 0)
@@ -25,8 +22,7 @@
 (defn- join-players [players ids]
   (mapv (partial get players) ids))
 
-(defn- game-view 
-  [{:keys [game players current-user]} owner]
+(defn- game-view [{:keys [game players current-user]} owner]
   (reify
     om/IRenderState
     (render-state [this {:keys [hidden]}]
@@ -63,10 +59,12 @@
 
 (def login-form 
   (simple-form "Login" [{:name "email" :type "text"}]
-               :current-user (fn [[email] current-user] 
-                               (some (fn [[id player]] 
-                                       (if (= email (:email player)) id))
-                                     (:players @app-state)))))
+               :root (fn [[email] app] 
+                       (assoc app :current-user
+                              (some 
+                                (fn [[id player]] 
+                                  (if (= email (:email player)) id))
+                                (:players app))))))
 
 (def new-player-form
   (simple-form "Create account" [{:name "Name" :type "text"}
@@ -92,11 +90,11 @@
         [:div [:span {:class "current-user"} (:name user)]]
         [:div [:span {:class "no-current-user"}]]))))
 
-(defn render-app [app owner]
+(defn render-app [{app :root :as root} owner]
   (om/component
     (html [:div 
            (om/build current-user app)
-           (om/build login-form app {:init-state {:hidden true}})
+           (om/build login-form root {:init-state {:hidden true}})
            (om/build new-player-form app {:init-state {:hidden true}})
            (om/build new-game-form app {:init-state {:hidden true}})
            (om/build game-list app)
