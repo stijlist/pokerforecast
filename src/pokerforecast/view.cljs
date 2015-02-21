@@ -48,7 +48,7 @@
   (some #{current-user} attending))
 
 (defn- game-view 
-  [game owner]
+  [{:keys [game]} owner]
   (reify
     om/IRenderState
     (render-state [this {:keys [hidden]}]
@@ -89,7 +89,10 @@
          (om/build-all game-view 
            ;; TODO: collect multiple cursors in a map and pass them to game-view
            ;; instead of associng new data with each game ad-hoc
-           (->> games (with-players players) (with-current-user logged-in-user)) 
+           (->> games 
+                (with-players players) 
+                (with-current-user logged-in-user) 
+                (map (partial hash-map :game))) 
            {:init-state {:hidden true}})]))))
 
 (defn- node-vals [owner node-names]
