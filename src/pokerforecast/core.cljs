@@ -154,15 +154,8 @@
                           (->> games with-indices (with-players players))
                           {:init-state {:toggle-chan toggle-chan}})))))
 
-(defn fresh-player [new-name email threshold]
-  (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
-
 (defn node-vals [owner & node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
-
-(defn add-player [player existing]
-  (let [next-id (inc (apply max (keys existing)))]
-    (assoc existing next-id player)))
 
 ; fields is a vector of maps, containing the keys field-name and field-type, 
 ; which are the label of the field and the dom input type to be used, respectively
@@ -203,6 +196,13 @@
                :logged-in-user (fn [[email] current-user] 
                                  (first (filter #(= (:email %) email)
                                                 (vals (:players @app-state)))))))
+
+(defn fresh-player [new-name email threshold]
+  (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
+
+(defn add-player [player existing]
+  (let [next-id (inc (apply max (keys existing)))]
+    (assoc existing next-id player)))
 
 (def new-player-form
   (simple-form "Create account" [{:field-name "Name" :field-type "text"}
