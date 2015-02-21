@@ -49,12 +49,10 @@
   (let [next-id (inc (apply max (keys existing)))]
     (assoc existing next-id player)))
 
-(defn- add-game
-  [date existing]
+(defn- add-game [date existing]
   (conj existing {:date date :players [] :hidden true}))
 
-(defn- game-list
-  [app owner]
+(defn- game-list [app owner]
   (om/component
     (let [cursors (select-keys app [:players :current-user :game])]
       (html 
@@ -80,8 +78,7 @@
   (simple-form "New game" [{:name "Date" :type "text"}]
                :games (fn [[date] games] (add-game date games))))
 
-(defn- player-list
-  [app owner]
+(defn- player-list [app owner]
   (om/component
     (html [:div 
            [:h3 "Registered Players"]
@@ -94,8 +91,7 @@
         [:div [:span {:class "current-user"} (:name user)]]
         [:div [:span {:class "no-current-user"}]]))))
 
-(defn render-app
-  [app owner]
+(defn render-app [app owner]
   (om/component
     (html [:div 
            (om/build current-user app)
