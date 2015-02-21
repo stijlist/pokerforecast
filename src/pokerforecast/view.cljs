@@ -47,23 +47,22 @@
 (defn- currently-attending [{:keys [attending current-user]}]
   (some #{current-user} attending))
 
+(defn- with-players [players game]
+  (update-in game [:attending] (partial mapv (partial get players))))
+
 (defn- game-view 
-  [{:keys [game]} owner]
+  [{:keys [game players]} owner]
   (reify
     om/IRenderState
     (render-state [this {:keys [hidden]}]
-      (html [:li {:class (if (currently-attending game) "in-attendance")}
-             (render-date game) 
-             (render-likelihood game)
-             (render-attending-count game)
-             [:button {:onClick #(om/update-state! owner :hidden not)} 
-              "Show attending"]
-             (render-attendees game hidden)]))))
-
-(defn- with-players [players games]
-  (map 
-    #(update-in % [:attending] (partial mapv (partial get players))) 
-    games))
+      (let [game (with-players players game)]
+        (html [:li {:class (if (currently-attending game) "in-attendance")}
+              (render-date game) 
+              (render-likelihood game)
+              (render-attending-count game)
+              [:button {:onClick #(om/update-state! owner :hidden not)} 
+               "Show attending"]
+              (render-attendees game hidden)])))))
 
 (defn- with-current-user [user games]
   (map #(assoc % :current-user user) games))
@@ -90,9 +89,8 @@
            ;; TODO: collect multiple cursors in a map and pass them to game-view
            ;; instead of associng new data with each game ad-hoc
            (->> games 
-                (with-players players) 
                 (with-current-user logged-in-user) 
-                (map (partial hash-map :game))) 
+                (map (partial hash-map :players players :game))) 
            {:init-state {:hidden true}})]))))
 
 (defn- node-vals [owner node-names]
