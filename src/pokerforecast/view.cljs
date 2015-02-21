@@ -110,8 +110,8 @@
 (def login-form 
   (simple-form "Login" [{:field-name "email" :field-type "text"}]
                :current-user (fn [[email] current-user] 
-                                 (first (filter #(= (:email %) email)
-                                                (vals (:players @app-state)))))))
+                               (:id (first (filter #(= (:email %) email)
+                                             (vals (:players @app-state))))))))
 
 (def new-player-form
   (simple-form "Create account" [{:field-name "Name" :field-type "text"}
@@ -134,7 +134,7 @@
 (defn- current-user [app owner]
   (om/component
     (html 
-      (if-let [user (:current-user app)]
+      (if-let [user (get (:players app) (:current-user app))]
         [:div [:span {:class "current-user"} (:name user)]]
         [:div [:span {:class "no-current-user"}]]))))
 
