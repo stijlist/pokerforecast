@@ -39,11 +39,6 @@
        (as-percentage (forecast/flake-rate attendee))]
       [:span {:class "no-flake-rate"}])]))
 
-(defn- render-attendees
-  [game hidden]
-  (html [:ul {:class (classes "attendees" (hide-if hidden))}
-    (map render-player (:attending game))]))
-
 (defn- with-players [players game]
   (update-in game [:attending] (partial mapv (partial get players))))
 
@@ -59,7 +54,8 @@
                (render-attending-count game)
                [:button {:onClick #(om/update-state! owner :hidden not)} 
                 "Show attending"]
-               (render-attendees game hidden)])))))
+               [:ul {:class (classes "attendees" (hide-if hidden))} 
+                (map render-player (:attending game))]])))))
 
 (defn- fresh-player [new-name email threshold]
   (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
