@@ -56,13 +56,14 @@
   (conj existing {:date date :players [] :hidden true}))
 
 (defn- game-list
-  [{:keys [players games current-user] :as app} owner]
+  [app owner]
   (om/component
-    (html 
-      [:ul 
-       (om/build-all game-view 
-         (map (partial hash-map :players players :current-user current-user :game) games)
-         {:init-state {:hidden true}})])))
+    (let [cursors (select-keys app [:players :current-user :game])]
+      (html 
+        [:ul 
+         (om/build-all game-view 
+           (map (partial assoc cursors :game) (:games app))
+           {:init-state {:hidden true}})]))))
 
 (defn- node-vals [owner node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
