@@ -6,10 +6,22 @@
 
 (defn- inspect [thing] (println thing) thing)
 
-(defn- classes [& cs]
-  (apply str (interpose " " cs)))
+(defn- classes [& cs] (apply str (interpose " " cs)))
 
 (defn- as-percentage [n] (.toFixed (* n 100)))
+
+(defn- join-players [players ids]
+  (mapv (partial get players) ids))
+
+(defn- fresh-player [new-name email threshold]
+  (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
+
+(defn- add-player [player existing]
+  (let [next-id (inc (apply max (keys existing)))]
+    (assoc existing next-id player)))
+
+(defn- add-game [date existing]
+  (conj existing {:date date :players [] :hidden true}))
 
 (defn- render-player [attendee]
   (html [:li 
@@ -18,9 +30,6 @@
       [:span {:class "flake-rate"}
        (as-percentage (forecast/flake-rate attendee))]
       [:span {:class "no-flake-rate"}])]))
-
-(defn- join-players [players ids]
-  (mapv (partial get players) ids))
 
 (defn- game-view [{:keys [game players current-user]} owner]
   (reify
@@ -37,16 +46,6 @@
                 "Show attending"]
                [:ul {:class (classes "attendees" (if hidden "hide" ""))} 
                 (map render-player attending)]])))))
-
-(defn- fresh-player [new-name email threshold]
-  (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
-
-(defn- add-player [player existing]
-  (let [next-id (inc (apply max (keys existing)))]
-    (assoc existing next-id player)))
-
-(defn- add-game [date existing]
-  (conj existing {:date date :players [] :hidden true}))
 
 (defn- game-list [app owner]
   (om/component
