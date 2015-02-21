@@ -2,32 +2,30 @@
 
 (enable-console-print!)
 
-(defn inspect [thing] (println thing) thing)
-
-(defn attendance-rate
+(defn- attendance-rate
   [{:keys [attended rsvpd]}]
   (if (= 0 rsvpd) nil (/ attended rsvpd)))
 
-(defn powerset
+(defn- powerset
   [coll]
   (if-not (seq coll) 
     [[]]
     (let [rest-powerset (powerset (rest coll))]
       (concat (map #(conj % (first coll)) rest-powerset) rest-powerset))))
 
-(defn game-likelihood
+(defn- game-likelihood
   [attendees]
   (->> attendees
        (map attendance-rate) ; what do we do with unknown attendance rates?
        (filter (comp not nil?))
        (reduce *)))
 
-(defn enough-players [attendees]
+(defn- enough-players [attendees]
   (>= 
     (count attendees)
     (apply max (map :threshold attendees))))
 
-(defn default [d input]
+(defn- default [d input]
   (if (nil? input) d input))
 
 (defn maximum-game-likelihood 
