@@ -1,7 +1,8 @@
 (ns pokerforecast.core
   (:require [clojure.browser.repl :as repl]
             [om.dom :as dom :include-macros true]
-            [om.core :as om :include-macros true]))
+            [om.core :as om :include-macros true]
+            [sablono.core :as html :refer-macros [html]]))
 
 (enable-console-print!)
 
@@ -32,6 +33,8 @@
                                    :attended 1
                                    :threshold 3}}
                       :logged-in-user nil}))
+
+;; FORECASTING
 
 (defn attendance-rate
   [{:keys [attended rsvpd]}]
@@ -73,6 +76,8 @@
 (defn flake-rate [attendee]
   (- 1 (attendance-rate attendee)))
 
+;; PRESENTATION
+
 (defn hide-if [hidden?]
   (if hidden? "hide" ""))
 
@@ -86,8 +91,8 @@
 
 (defn render-likelihood
   [game]
-  (dom/span #js {:className "likelihood"}
-            (as-percentage (maximum-game-likelihood game))))
+  (html [:span {:class "likelihood"}
+         (as-percentage (maximum-game-likelihood game))]))
 
 (defn render-attending-count
   [game]
