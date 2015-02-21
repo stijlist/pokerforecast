@@ -64,8 +64,9 @@
 (def login-form 
   (simple-form "Login" [{:name "email" :type "text"}]
                :current-user (fn [[email] current-user] 
-                               (:id (first (filter #(= (:email %) email)
-                                             (vals (:players @app-state))))))))
+                               (some (fn [[id player]] 
+                                       (if (= email (:email player)) id))
+                                     (:players @app-state)))))
 
 (def new-player-form
   (simple-form "Create account" [{:name "Name" :type "text"}
