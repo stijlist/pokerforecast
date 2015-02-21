@@ -44,22 +44,16 @@
   (html [:ul {:class (classes "attendees" (hide-if hidden))}
     (map render-player (:attending game))]))
 
-(defn- currently-attending [{:keys [attending current-user]}]
-  (some #{current-user} attending))
-
 (defn- with-players [players game]
   (update-in game [:attending] (partial mapv (partial get players))))
-
-(defn- with-current-user [user game] 
-  (assoc game :current-user user))
 
 (defn- game-view 
   [{:keys [game players current-user]} owner]
   (reify
     om/IRenderState
     (render-state [this {:keys [hidden]}]
-      (let [game (with-current-user current-user (with-players players game))]
-        (html [:li {:class (if (currently-attending game) "in-attendance")}
+      (let [game (with-players players game)]
+        (html [:li {:class (if (some #{current-user} (:attending game)) "in-attendance")}
               (render-date game) 
               (render-likelihood game)
               (render-attending-count game)
