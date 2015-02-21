@@ -139,12 +139,14 @@
 (defn node-vals [owner & node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
 
-; fields is a vector of maps, containing the keys field-name and field-type, 
-; which are the label of the field and the dom input type to be used, respectively
-; update-fn takes a vector of values (the values in `fields`, ordered, at the 
-; moment the user hits submit) and the app state at `update-path` and returns 
-; the new app state at `update-path`
 (defn simple-form 
+  "Returns a generic hideable form component.
+  `form-name` is the text to be used on the button that shows and hides the form.
+  `fields` is a vector of maps, containing the keys `field-name` and `field-type`, 
+  which are the field label and the dom input type to be used, respectively.
+  `update-fn` takes a vector of values (the values in `fields`, ordered, at the 
+  moment the user hits submit) and the app state at `update-path` and returns 
+  the new app state at `update-path`."
   [form-name fields update-path update-fn]
   (fn [app owner]
     (reify
