@@ -73,15 +73,15 @@
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
 
 (defn- build-form-field
-  [{:keys [field-name field-type]}] 
+  [{:keys [name type]}] 
   (html [:span 
-    [:label field-name]
-    [:input {:type field-type :ref field-name}]]))
+    [:label name]
+    [:input {:type type :ref name}]]))
 
 (defn- simple-form 
   "Returns a generic hideable form component that can update app-state.
   `form-name` is the text to be used on the button that shows and hides the form.
-  `fields` is a vector of maps, containing the keys `field-name` and `field-type`, 
+  `fields` is a vector of maps, containing the keys `name` and `type`, 
   which are the field label and the dom input type to be used, respectively.
   `update-fn` takes a vector of values (the values in `fields`, ordered, at the 
   moment the user hits submit) and the app state at `update-path` and returns 
@@ -101,27 +101,26 @@
                     (.preventDefault e)
                     (om/transact! app update-path 
                       (partial update-fn 
-                               (node-vals owner (map :field-name fields))))
+                               (node-vals owner (map :name fields))))
                     (om/set-state! owner :hidden true))}
-                 (for [field fields] 
-                   (build-form-field field))
+                 (map build-form-field fields)
                  [:input {:type "submit"}]]]])))))
 
 (def login-form 
-  (simple-form "Login" [{:field-name "email" :field-type "text"}]
+  (simple-form "Login" [{:name "email" :type "text"}]
                :current-user (fn [[email] current-user] 
                                (:id (first (filter #(= (:email %) email)
                                              (vals (:players @app-state))))))))
 
 (def new-player-form
-  (simple-form "Create account" [{:field-name "Name" :field-type "text"}
-                                 {:field-name "Email" :field-type "text"}
-                                 {:field-name "Minimum game threshold" :field-type "number"}]
+  (simple-form "Create account" [{:name "Name" :type "text"}
+                                 {:name "Email" :type "text"}
+                                 {:name "Minimum game threshold" :type "number"}]
                :players (fn [[pname email threshold] existing] 
                           (add-player (fresh-player pname email threshold) existing))))
 
 (def new-game-form 
-  (simple-form "New game" [{:field-name "Date" :field-type "text"}]
+  (simple-form "New game" [{:name "Date" :type "text"}]
                :games (fn [[date] games] (add-game date games))))
 
 (defn- player-list
