@@ -14,7 +14,7 @@
   (mapv (partial get players) ids))
 
 (defn- fresh-player [new-name email threshold]
-  (assoc {:attended 0 :rsvpd 0} :name new-name :threshold threshold))
+  {:attended 0 :rsvpd 0 :name new-name :threshold threshold})
 
 (defn- add-player [player existing]
   (let [next-id (inc (apply max (keys existing)))]
