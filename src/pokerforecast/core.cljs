@@ -1,20 +1,16 @@
 (ns pokerforecast.core
-  (:require-macros [cljs.core.async.macros :refer [go-loop]])
   (:require [clojure.browser.repl :as repl]
             [om.dom :as dom :include-macros true]
-            [om.core :as om :include-macros true]
-            [cljs.core.async :refer [put! chan <!]]))
+            [om.core :as om :include-macros true]))
 
 (enable-console-print!)
 
 (defn inspect [thing] (println thing) thing)
 
 (def app-state (atom {:games [{:date "Monday, January 18"
-                                :attending [1 2]
-                                :hidden true}
+                                :attending [1 2]}
                                {:date "Tuesday, January 19"
-                                :attending [3 4 1]
-                                :hidden true}]
+                                :attending [3 4 1]}]
                       :players {1 {:name "James"
                                    :rsvpd 3
                                    :email "yolo@swag.com"
@@ -108,25 +104,22 @@
             (dom/span #js {:className "no-flake-rate"}))))
 
 (defn render-attendees
-  [game]
-  (apply dom/ul #js {:className (classes "attendees" (hide-if (:hidden game)))}
+  [game hidden]
+  (apply dom/ul #js {:className (classes "attendees" (hide-if hidden))}
          (map render-player (:attending game))))
 
 (defn game-view 
   [game owner]
   (reify
     om/IRenderState
-    (render-state [this {:keys [toggle-chan]}]
+    (render-state [this {:keys [hidden]}]
       (dom/li nil
         (render-date game) 
         (render-likelihood game)
         (render-attending-count game)
-        (dom/button #js {:onClick #(put! toggle-chan (:index game))} 
+        (dom/button #js {:onClick #(om/update-state! owner :hidden not)} 
                     "Show attending")
-        (render-attendees game)))))
-
-(defn- with-indices [coll]
-  (map-indexed (fn [i item] (assoc item :index i)) coll))
+        (render-attendees game hidden)))))
 
 (defn- with-players [players games]
   (map 
@@ -136,23 +129,12 @@
 (defn game-list
   [{:keys [players games] :as app} owner]
   (reify
-    om/IInitState
-    (init-state [_]
-      {:toggle-chan (chan)})
-
-    om/IWillMount
-    (will-mount [this]
-      (let [toggle-chan (om/get-state owner :toggle-chan)]
-        (go-loop [] 
-          (om/transact! app [:games (<! toggle-chan) :hidden] not)
-          (recur))))
-
     om/IRenderState
-    (render-state [this {:keys [toggle-chan]}]
+    (render-state [this state]
       (apply dom/ul nil 
             (om/build-all game-view 
-                          (->> games with-indices (with-players players))
-                          {:init-state {:toggle-chan toggle-chan}})))))
+                          (->> games (with-players players))
+                          {:init-state {:hidden true}})))))
 
 (defn node-vals [owner & node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
