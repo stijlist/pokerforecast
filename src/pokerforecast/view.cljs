@@ -13,7 +13,7 @@
 (defn- join-players [players ids]
   (mapv (partial get players) ids))
 
-(defn- fresh-player [new-name email threshold]
+(defn- fresh-player [new-name email password threshold]
   {:attended 0 :rsvpd 0 :name new-name :threshold threshold})
 
 (defn- add-player [player existing]
@@ -64,20 +64,24 @@
            {:init-state {:hidden true}})]))))
 
 (def login-form 
-  (simple-form "Login" [{:name "email" :type "text"}]
-               :root (fn [[email] app] 
+  (simple-form "Login" [{:name "email" :type "text"}
+                        {:name "password" :type "password"}]
+               :root (fn [[email password] app] 
                        (assoc app :current-user
                               (some 
                                 (fn [[id player]] 
-                                  (if (= email (:email player)) id))
+                                  (if (and (= email (:email player))
+                                           (= password (:password player))) ; temp, obvs
+                                    id))
                                 (:players app))))))
 
 (def new-player-form
   (simple-form "Create account" [{:name "Name" :type "text"}
                                  {:name "Email" :type "text"}
+                                 {:name "Password" :type "password"}
                                  {:name "Minimum game threshold" :type "number"}]
-               :players (fn [[pname email threshold] existing] 
-                          (add-player (fresh-player pname email threshold) existing))))
+               :players (fn [[pname email password threshold] existing] 
+                          (add-player (fresh-player pname email password threshold) existing))))
 
 (def new-game-form 
   (simple-form "New game" [{:name "Date" :type "text"}]
