@@ -2,8 +2,11 @@
   (:require [om.core :as om]
             [sablono.core :refer-macros [html]]))
 
-(defn button-to [label cb props]
-  (html [:button (merge {:onClick cb} props) label]))
+(defn button-to 
+  ([label cb] 
+   (html [:button {:onClick cb} label]))
+  ([label props cb] 
+   (html [:button (merge {:onClick cb} props) label])))
 
 (defn- node-vals [owner node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))

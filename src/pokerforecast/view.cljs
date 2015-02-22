@@ -48,10 +48,9 @@
                  (button-to "Change RSVP" 
                    #(om/transact! game :attending 
                                   (partial remove (partial = current-user))))
-                 (button-to "RSVP" 
+                 (button-to "RSVP" {:disabled (not current-user)}
                    #(om/transact! game :attending 
-                                  (fn [g] (conj g current-user)))
-                   {:disabled (not current-user)}))
+                                  (fn [g] (conj g current-user)))))
                [:ul {:class (classes "attendees" (if hidden "hide" ""))} 
                 (map render-player attending)]])))))
 
