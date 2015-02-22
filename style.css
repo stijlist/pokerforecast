@@ -37,8 +37,8 @@ span.likelihood::after {
   content: "% chance of poker";
 }
 
-.in-attendance { color: green }
-.in-attendance::after { content: " (You're going)" }
+.rsvpd { color: green }
+.rsvpd::after { content: " (You're going)" }
 
 span.attending-count {
   color: grey;
