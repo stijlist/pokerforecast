@@ -48,9 +48,10 @@
                  (button-to "Change RSVP" 
                    #(om/transact! game :attending 
                                   (partial remove (partial = current-user))))
-                 (button-to "RSVP"
+                 (button-to "RSVP" 
                    #(om/transact! game :attending 
-                                  (fn [g] (conj g current-user)))))
+                                  (fn [g] (conj g current-user)))
+                   {:disabled (not current-user)}))
                [:ul {:class (classes "attendees" (if hidden "hide" ""))} 
                 (map render-player attending)]])))))
 
@@ -100,8 +101,10 @@
   (om/component
     (html [:div 
            (om/build current-user app)
-           (om/build login-form root {:init-state {:hidden true}})
-           (om/build new-player-form app {:init-state {:hidden true}})
-           (om/build new-game-form app {:init-state {:hidden true}})
+           (if (not (:current-user app)) 
+             [:div 
+              (om/build login-form root {:init-state {:hidden true}})
+              (om/build new-player-form app {:init-state {:hidden true}})]
+             (om/build new-game-form app {:init-state {:hidden true}}))
            (om/build game-list app)
            (om/build player-list app)])))
