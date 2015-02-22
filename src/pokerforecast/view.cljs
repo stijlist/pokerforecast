@@ -35,8 +35,9 @@
   (reify
     om/IRenderState
     (render-state [this {:keys [hidden]}]
-      (let [attending (join-players players (:attending game))]
-        (html [:li {:class (if (some #{current-user} (:attending game)) "in-attendance")}
+      (let [attending (join-players players (:attending game))
+            in-attendance (some #{current-user} (:attending game))]
+        (html [:li {:class (if in-attendance "in-attendance")}
                [:span {:class "date"} (:date game)]
                [:span {:class "likelihood"}
                         (as-percentage 
@@ -44,6 +45,13 @@
                [:span {:class "attending-count"} (count attending)]
                [:button {:onClick #(om/update-state! owner :hidden not)} 
                 "Show attending"]
+               (if in-attendance
+                 [:button {:onClick #(om/transact! game :attending 
+                                       (partial remove (partial = current-user)))}
+                  "Change RSVP"]
+                 [:button {:onClick #(om/transact! game :attending 
+                                       (fn [g] (conj g current-user)))}
+                  "RSVP"])
                [:ul {:class (classes "attendees" (if hidden "hide" ""))} 
                 (map render-player attending)]])))))
 
