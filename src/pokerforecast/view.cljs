@@ -2,7 +2,7 @@
   (:require [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
             [pokerforecast.core :as forecast]
-            [pokerforecast.form :refer [simple-form]]))
+            [pokerforecast.form :refer [simple-form button-to]]))
 
 (defn- inspect [thing] (println thing) thing)
 
@@ -43,15 +43,14 @@
                         (as-percentage 
                           (forecast/maximum-game-likelihood attending))]
                [:span {:class "attending-count"} (count attending)]
-               [:button {:onClick #(om/update-state! owner :hidden not)} 
-                "Show attending"]
+               (button-to "Show attending" #(om/update-state! owner :hidden not))
                (if rsvpd
-                 [:button {:onClick #(om/transact! game :attending 
-                                       (partial remove (partial = current-user)))}
-                  "Change RSVP"]
-                 [:button {:onClick #(om/transact! game :attending 
-                                       (fn [g] (conj g current-user)))}
-                  "RSVP"])
+                 (button-to "Change RSVP" 
+                   #(om/transact! game :attending 
+                                  (partial remove (partial = current-user))))
+                 (button-to "RSVP"
+                   #(om/transact! game :attending 
+                                  (fn [g] (conj g current-user)))))
                [:ul {:class (classes "attendees" (if hidden "hide" ""))} 
                 (map render-player attending)]])))))
 
