@@ -40,8 +40,9 @@
         (html [:li {:class (if rsvpd "rsvpd")}
                [:span {:class "date"} (:date game)]
                [:span {:class "likelihood"}
-                        (as-percentage 
-                          (forecast/maximum-game-likelihood attending))]
+                (as-percentage (forecast/maximum-game-likelihood attending))]
+               [:span {:class "confidence"} 
+                (as-percentage (forecast/likelihood-confidence attending))]
                [:span {:class "attending-count"} (count attending)]
                (button-to "Show attending" #(om/update-state! owner :hidden not))
                (if rsvpd

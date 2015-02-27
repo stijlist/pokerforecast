@@ -34,3 +34,6 @@
 
 (defn flake-rate [attendee]
   (- 1 (attendance-rate attendee)))
+
+(defn likelihood-confidence [attendees]
+  (/ (count (filter (comp not nil?) attendees)) (count attendees)))

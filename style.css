@@ -10,6 +10,10 @@ li.new {
   list-style: none
 }
 
+span.date::after {
+  content: ":"
+}
+
 span.attendee::after {
   content: ":"
 }
@@ -30,11 +34,19 @@ span.no-flake-rate::after {
 }
 
 span.likelihood {
-  margin: 0.5em;
+  margin: 0.25em;
 }
 
 span.likelihood::after {
   content: "% chance of poker";
+}
+
+span.confidence::before {
+  content: "with "
+}
+
+span.confidence::after {
+  content: "% confidence"
 }
 
 .rsvpd { color: green }
