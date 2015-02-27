@@ -11,7 +11,7 @@
 (defn- as-percentage [n] (.toFixed (* n 100)))
 
 (defn- join-players [players ids]
-  (mapv (partial get players) ids))
+  (map (partial get players) ids))
 
 (defn- fresh-player [new-name email password threshold]
   {:attended 0 :rsvpd 0 :name new-name :threshold threshold})
