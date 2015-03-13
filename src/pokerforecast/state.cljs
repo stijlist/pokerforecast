@@ -1,9 +1,9 @@
 (ns pokerforecast.state)
 
 (def app-state (atom {:root 
-                      {:games [{:date "Monday, January 18"
+                      {:games [{:date "01/18/2015"
                                 :attending [1 2]}
-                                {:date "Tuesday, January 19"
+                                {:date "01/19/2015"
                                  :attending [3 4 1]}]
                         :players {1 {:name "James"
                                      :rsvpd 3
