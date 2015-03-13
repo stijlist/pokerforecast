@@ -11,8 +11,7 @@
 (defn- node-vals [owner node-names]
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
 
-(defn- build-form-field
-  [{:keys [name type]}] 
+(defn- build-form-field [{:keys [name type]}] 
   (html [:span 
     [:label name]
     [:input {:type type :ref name}]]))
