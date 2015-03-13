@@ -17,6 +17,12 @@
     [:label name]
     [:input {:type type :ref name}]]))
 
+(defn- validate-form-field [owner field]
+  (if-let [validation-fn (:validation-fn field)] 
+    (validation-fn (.-value (om/get-node owner (:name field))))
+    true))
+
+;; TODO: OH SHIT! this should be a higher-order componenent!
 (defn- simple-form 
   "Returns a hideable form component that can update app-state.
   `form-name` is the text to be used on the button that shows and hides the form.
@@ -38,9 +44,11 @@
                  {:onSubmit 
                   (fn [e] 
                     (.preventDefault e)
-                    (om/transact! app update-path 
-                      (partial update-fn 
-                               (node-vals owner (map :name fields))))
-                    (om/set-state! owner :hidden true))}
+                    (if (every? (partial validate-form-field owner) fields)
+                      (do
+                        (om/transact! app update-path 
+                          (partial update-fn 
+                                   (node-vals owner (map :name fields))))
+                        (om/set-state! owner :hidden true))))}
                  (map build-form-field fields)
                  [:input {:type "submit"}]]]])))))

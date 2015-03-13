@@ -1,6 +1,7 @@
 (ns pokerforecast.view
   (:require [om.core :as om :include-macros true]
             [sablono.core :as html :refer-macros [html]]
+            [clojure.string :as string]
             [pokerforecast.core :as forecast]
             [pokerforecast.form :refer [simple-form button-to]]))
 
@@ -84,8 +85,13 @@
                :players (fn [[pname email password threshold] existing] 
                           (add-player (fresh-player pname email password threshold) existing))))
 
+(defn- validate-date [date]
+  (let [[mm dd yyyy] (string/split date "/")]
+    (and (= 2 (count mm)) (= 2 (count dd)) (= 4 (count yyyy)))))
+
 (def new-game-form 
-  (simple-form "New game" [{:name "Date" :type "text"}]
+  (simple-form "New game" [{:name "Date" :type "text"
+                            :validation-fn validate-date}]
                :games (fn [[date] games] (add-game date games))))
 
 (defn- player-list [app owner]
