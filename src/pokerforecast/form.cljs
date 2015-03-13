@@ -23,13 +23,14 @@
 
 ;; TODO: OH SHIT! this should be a higher-order componenent!
 (defn- simple-form 
-  "Returns a hideable form component that can update app-state.
-  `form-name` is the text to be used on the button that shows and hides the form.
-  `fields` is a vector of maps, containing the keys `name` and `type`, 
-  which are the field label and the dom input type to be used, respectively.
-  `update-fn` takes a vector of values (the values in `fields`, ordered, at the 
-  moment the user hits submit) and the app state at `update-path` and returns 
-  the new app state at `update-path`."
+  "Returns a hideable form component that can update app-state. `form-name`
+  is the text to be used on the button that shows and hides the form.
+  `fields` is a vector of maps, containing the keys `name`, `type`, and
+  `validation-fn` which are the field label, the dom input type to be used,
+  and the function with which to validate user input before allowing form
+  submission, respectively. `update-fn` takes a vector of values (the values in
+  `fields`, ordered, at the moment the user hits submit) and the app state at
+  `update-path` and returns the new app state at `update-path`."
   [form-name fields update-path update-fn]
   (fn [app owner]
     (reify
