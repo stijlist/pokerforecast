@@ -28,7 +28,10 @@
   `fields` is a vector of maps, containing the keys `name`, `type`, and
   `validation-fn` which are the field label, the dom input type to be used,
   and the function with which to validate user input before allowing form
-  submission, respectively. `update-fn` takes a vector of values (the values in
+  submission, respectively. Currently, validations just silently refuse output,
+  but we should probably either include an option for a validation failure message,
+  or scrap the simple-form mechanism and use higher-order components instead.
+  `update-fn` takes a vector of values (the values in
   `fields`, ordered, at the moment the user hits submit) and the app state at
   `update-path` and returns the new app state at `update-path`."
   [form-name fields update-path update-fn]
