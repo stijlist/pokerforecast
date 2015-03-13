@@ -36,4 +36,6 @@
   (- 1 (attendance-rate attendee)))
 
 (defn likelihood-confidence [attendees]
-  (/ (count (filter (comp not nil?) attendees)) (count attendees)))
+  (if (> (count attendees) 0)
+    (/ (count (filter (comp not nil?) attendees)) (count attendees))
+    0))
