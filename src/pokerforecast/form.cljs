@@ -22,6 +22,15 @@
     true))
 
 ;; TODO: OH SHIT! this should be a higher-order componenent!
+;; Possible Design: Takes a vector of form-field components and builds them
+;; all inside a form. Each component conforms to a IFormField protocol and
+;; optionally to an ICanValidate protocol
+;; IFormField: FormValue -> has a `value` function -> string
+;; `(value field)`
+;; ICanValidate 
+;;   -> has a `validation-error` function -> nil or a validation error message
+;; so a callsite for ICanValidate might look like 
+;; `(if-let [err (validation-error field)] (show err) (use field))`
 (defn- simple-form 
   "Returns a hideable form component that can update app-state. `form-name`
   is the text to be used on the button that shows and hides the form.
