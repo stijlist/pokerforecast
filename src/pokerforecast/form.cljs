@@ -21,17 +21,42 @@
     (validation-fn (.-value (om/get-node owner (:name field))))
     true))
 
-;; TODO: OH SHIT! this should be a higher-order componenent!
-;; Possible Design: Takes a vector of form-field components and builds them
+(defprotocol IFormField 
+  (value [] "Returns the string value of the form field"))
+
+(defprotocol IValidateInputs 
+  (validation-error [] "Returns nil or a validation error message"))
+
+(defprotocol IUpdateState
+  (state-path [] "Returns the key path to update in the app-state")
+  (update-fn [value] "Returns the function to use to update the state-path"))
+
+; (defn handle-change [e owner {:keys [text]}]
+;   (om/set-state! owner :text (.. e -target -value)))
+
+;; TODO: simplify, verify it's working, then build up handle-change logic
+; (defn game-date-field
+;   (reify
+;     om/IInitState
+;     (init-state [_]
+;       {:text ""})
+;     om/IRenderState
+;     (render [this {:keys [text]]
+;       (html [:span 
+;              [:label "Game date"]
+;              [:input {:type date :ref "game-date" :value text
+;                       :onChange #(handle-change % owner state)}]]))
+;     IFormField
+;     (value [])
+;     IValidateInputs
+;     (value [])))
+
+; (simple-form [game-date-field])
+
+;; Takes a vector of form-field components and builds them
 ;; all inside a form. Each component conforms to a IFormField protocol and
-;; optionally to an ICanValidate protocol
-;; IFormField: FormValue -> has a `value` function -> string
-;; `(value field)`
-;; ICanValidate 
-;;   -> has a `validation-error` function -> nil or a validation error message
-;; so a callsite for ICanValidate might look like 
-;; `(if-let [err (validation-error field)] (show err) (use field))`
-(defn- simple-form 
+;; optionally to an IValidateInputs protocol
+(defn simple-form 
   "Returns a hideable form component that can update app-state. `form-name`
   is the text to be used on the button that shows and hides the form.
   `fields` is a vector of maps, containing the keys `name`, `type`, and
@@ -56,11 +81,16 @@
                  {:onSubmit 
                   (fn [e] 
                     (.preventDefault e)
-                    (if (every? (partial validate-form-field owner) fields)
-                      (do
-                        (om/transact! app update-path 
-                          (partial update-fn 
-                                   (node-vals owner (map :name fields))))
-                        (om/set-state! owner :hidden true))))}
-                 (map build-form-field fields)
+                    ;; TODO: this is a sketch! haven't run this yet
+                    (->> fields
+                         (filter (partial satisfies? IValidateInputs))
+                         (map (juxt identity value))
+                         (filter (comp (partial satisfies? IUpdateState) first))
+                         (map 
+                           (fn [field value] 
+                             (om/transact! app 
+                               (update-path field) 
+                               (partial (update-fn field) (value field)))))))}
+                    )}
+                 (om/build-all fields)
                  [:input {:type "submit"}]]]])))))
