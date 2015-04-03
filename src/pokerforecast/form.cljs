@@ -22,14 +22,14 @@
     true))
 
 (defprotocol IFormField 
-  (value [] "Returns the string value of the form field"))
+  (value [this] "Returns the string value of the form field"))
 
 (defprotocol IValidateInputs 
-  (validation-error [] "Returns nil or a validation error message"))
+  (validation-error [this] "Returns nil or a validation error message"))
 
 (defprotocol IUpdateState
-  (state-path [] "Returns the key path to update in the app-state")
-  (update-fn [value] "Returns the function to use to update the state-path"))
+  (state-path [this] "Returns the key path to update in the app-state")
+  (update-fn [this value] "Returns the function to use to update the state-path"))
 
 ; (defn handle-change [e owner {:keys [text]}]
 ;   (om/set-state! owner :text (.. e -target -value)))
@@ -91,6 +91,5 @@
                              (om/transact! app 
                                (update-path field) 
                                (partial (update-fn field) (value field)))))))}
-                    )}
                  (om/build-all fields)
                  [:input {:type "submit"}]]]])))))
