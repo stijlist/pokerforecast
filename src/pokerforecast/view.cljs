@@ -65,34 +65,36 @@
            (map (partial assoc cursors :game) (:games app))
            {:init-state {:hidden true}})]))))
 
-(def login-form 
-  (simple-form "Login" [{:name "email" :type "text"}
-                        {:name "password" :type "password"}]
-               :root (fn [[email password] app] 
-                       (assoc app :current-user
-                              (some 
-                                (fn [[id player]] 
-                                  (if (and (= email (:email player))
-                                           (= password (:password player))) ; temp, obvs
-                                    id))
-                                (:players app))))))
+(defn new-game-form [app owner]
+  (reify
+    om/IRenderState
+    (render-state [this state]
+      (html 
+        [:form 
+         {:onSubmit 
+          (fn [e] 
+            (.preventDefault e)
+            (om/transact! app [:root :games] 
+              #(conj games {:date (:game-date state) :attending []}))}
+         [:input 
+          {:type "text" 
+           :value (:game-date state)
+           :onChange (fn [e] 
+                       (om/set-state! owner :game-date (.. e -target -value)))}]
+         [:input {:type "submit"}]]))))) 
 
-(def new-player-form
-  (simple-form "Create account" [{:name "Name" :type "text"}
-                                 {:name "Email" :type "text"}
-                                 {:name "Password" :type "password"}
-                                 {:name "Minimum game threshold" :type "number"}]
-               :players (fn [[pname email password threshold] existing] 
-                          (add-player (fresh-player pname email password threshold) existing))))
+(defn new-player-form [app owner]
+  (reify
+    om/IRenderState
+    (render-state [this state]
+      (html
+        [:form
+         {:onSubmit
+          (fn [e]
+            (.preventDefault e)
+            (om/transact! app [:players] 
 
-(defn- validate-date [date]
-  (let [[mm dd yyyy] (string/split date "/")]
-    (and (= 2 (count mm)) (= 2 (count dd)) (= 4 (count yyyy)))))
 
-(def new-game-form 
-  (simple-form "New game" [{:name "Date" :type "text"
-                            :validation-fn validate-date}]
-               :games (fn [[date] games] (add-game date games))))
 
 (defn- player-list [app owner]
   (om/component
