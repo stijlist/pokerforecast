@@ -1,0 +1,22 @@
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+.flex {
+  display: flex;
+}
+
+// flex-flow determines axis orientation
+// row: axis is horizontal
+// column: axis is vertical
+// justify-content: axis alignment
+//   - to distribute space evenly around items, set justify-content to space-around or space-between
+// align-items: cross-axis alignment
+//   - both justify-content and align-items can be flex-end, flex-start, or center
+
+// flex-grow, flex-shrink, and flex-basis are the values that define the size 
+// of flex items
