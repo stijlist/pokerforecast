@@ -8,6 +8,15 @@ html {
 
 .flex {
   display: flex;
+  display: -webkit-flex;
+}
+
+.flow-across {
+  -webkit-flex-flow: row;
+}
+
+.flow-down {
+  -webkit-flex-flow: column;
 }
 
 // flex-flow determines axis orientation

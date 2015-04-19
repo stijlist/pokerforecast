@@ -44,7 +44,9 @@
                 form-name]
                [:div {:class (if hidden "hide" "")}
                 [:form 
-                 {:onSubmit 
+                 {:class 
+                  "flex flow-down"
+                  :onSubmit 
                   (fn [e] 
                     (.preventDefault e)
                     (if (every? (partial validate-form-field owner) fields)
