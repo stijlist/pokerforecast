@@ -12,8 +12,8 @@
   (map (comp #(.-value %) (partial om/get-node owner)) node-names))
 
 (defn- build-form-field [{:keys [name type]}] 
-  (html [:span 
-    [:label name]
+  (html [:div {:class "flex flow-down align-start"}
+    [:label  name]
     [:input {:type type :ref name}]]))
 
 (defn- validate-form-field [owner field]
@@ -55,5 +55,6 @@
                           (partial update-fn 
                                    (node-vals owner (map :name fields))))
                         (om/set-state! owner :hidden true))))}
-                 (map build-form-field fields)
+                 [:div {:class "flex flow-down align-start form-fields"}
+                  (map build-form-field fields)]
                  [:input {:type "submit"}]]]])))))
