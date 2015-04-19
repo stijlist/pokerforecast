@@ -4,11 +4,11 @@
             [pokerforecast.state :refer [app-state]]))
 
 (om/root
-  view/render-account-buttons
+  view/account-buttons
   app-state
   {:target (. js/document getElementById "account-buttons")})
 
 (om/root 
-  view/render-app
+  view/app
   app-state
   {:target (. js/document getElementById "app")})
