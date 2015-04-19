@@ -107,14 +107,18 @@
         [:div [:span {:class "current-user"} (:name user)]]
         [:div [:span {:class "no-current-user"}]]))))
 
+(defn render-account-buttons [{app :root :as root} owner]
+  (om/component
+    (html
+      [:div {:class "flex flow-across"}
+       (om/build login-form root {:init-state {:hidden true}})
+       (om/build new-player-form app {:init-state {:hidden true}})])))
+
 (defn render-app [{app :root :as root} owner]
   (om/component
     (html [:div 
-           (om/build current-user app)
-           (if (not (:current-user app)) 
-             [:div 
-              (om/build login-form root {:init-state {:hidden true}})
-              (om/build new-player-form app {:init-state {:hidden true}})]
+           (if (:current-user app) 
              (om/build new-game-form app {:init-state {:hidden true}}))
+           (om/build current-user app)
            (om/build game-list app)
            (om/build player-list app)])))

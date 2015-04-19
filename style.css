@@ -1,3 +1,12 @@
+.nav {
+  justify-content: space-between;
+  -webkit-justify-content: space-between;
+}
+  
+.title {
+  font-weight: bold;
+  font-size: 140%;
+}
 
 li.new {
   list-style: none
