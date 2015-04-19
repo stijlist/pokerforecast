@@ -45,7 +45,7 @@
                [:div {:class (if hidden "hide" "")}
                 [:form 
                  {:class 
-                  "flex flow-down"
+                  "flex flow-down align-start"
                   :onSubmit 
                   (fn [e] 
                     (.preventDefault e)

@@ -19,6 +19,11 @@ html {
   -webkit-flex-flow: column;
 }
 
+.align-start {
+  align-items: flex-start;
+  -webkit-align-items: flex-start;
+}
+
 // flex-flow determines axis orientation
 // row: axis is horizontal
 // column: axis is vertical
