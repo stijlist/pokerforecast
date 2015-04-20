@@ -3,7 +3,7 @@
             [sablono.core :as html :refer-macros [html]]
             [clojure.string :as string]
             [pokerforecast.core :as forecast]
-            [pokerforecast.form :refer [simple-form button-to]]))
+            [pokerforecast.form :as form :refer [simple-form button-to higher-order-form]]))
 
 (defn- inspect [thing] (println thing) thing)
 
@@ -107,6 +107,37 @@
         [:div [:span {:class "current-user"} (:name user)]]
         [:div [:span {:class "no-current-user"}]]))))
 
+(defn date-field [update-path update-fn]
+  (fn [app owner]
+    (om/component 
+      (html [:div "hello from date field"])))
+  #_(fn [app owner]
+   (reify
+     om/IInitState
+     (init-state [_] {:text ""})
+     om/IRenderState
+     (render-state [this state]
+       (html
+         [:label "Date"]
+         [:input {:type "text" :value (:text state) 
+                  :onChange 
+                  (fn [e] 
+                    (om/set-state! owner :text (.. e -target -value)))}]))
+     form/IHaveValue
+     (value [this] (om/get-state owner :text))
+     form/IValidateInput
+     (validation-error? [_] 
+       (if-not 
+         (validate-date (om/get-state owner :text)) 
+         "Please enter a date in mm/dd/yyyy format"))
+     form/IUpdateState
+     (update-state [this] (om/transact! app update-path (partial update-fn (value this)))))))
+
+(def higher-order-game-form 
+  (higher-order-form 
+    "New game" 
+    (date-field :games (fn [date games] (add-game date games)))))
+
 (defn account-buttons [{app :root :as root} owner]
   (om/component
     (html
@@ -120,5 +151,6 @@
            (if (:current-user app) 
              (om/build new-game-form app {:init-state {:hidden true}}))
            (om/build current-user app)
+           (om/build higher-order-game-form app)
            (om/build game-list app)
            (om/build player-list app)])))

@@ -2,6 +2,10 @@
   (:require [om.core :as om]
             [sablono.core :refer-macros [html]]))
 
+(enable-console-print!)
+(defn inspect [thing] (println thing) thing)
+(def zip (partial map vector))
+
 (defn button-to 
   ([label cb] 
    (html [:button {:onClick cb} label]))
@@ -20,6 +24,42 @@
   (if-let [validation-fn (:validation-fn field)] 
     (validation-fn (.-value (om/get-node owner (:name field))))
     true))
+
+(defprotocol IHaveValue (value [this] "Gets the value of a form field."))
+(defprotocol IValidateInput (validation-error? [this] "Returns any validation errors or nil if the field is valid."))
+(defprotocol IUpdateState (update-state [this] "Updates the app state with the field's current value."))
+
+(defn higher-order-form [form-name date-field]
+  (fn [app owner]
+    (reify
+      om/IRender
+      (render [this] 
+        (html 
+          [:div (om/build date-field {})]
+          #_(om/build (first fields) {}))))))
+
+#_(defn higher-order-form [form-name & fields]
+  (fn [app owner]
+    (reify
+      om/IRender
+      (render [this]
+        (html [:div 
+               [:button {:onClick #(om/update-state! owner :hidden not)}
+                form-name]
+               [:div 
+                [:form 
+                 {:class 
+                  "flex flow-down align-start"
+                  :onSubmit 
+                  (fn [e] 
+                    (.preventDefault e)
+                    (if-let [errors (map validation-error? fields)]
+                      (println errors)
+                      (map #(update-state % (value %)) fields)))}
+                 [:div {:class "flex flow-down align-start form-fields"}
+                  (inspect (map om/build (zip fields (repeat {}))))]
+                 [:input {:type "submit"}]]]])))))
+          
 
 ;; TODO: OH SHIT! this should be a higher-order componenent!
 (defn- simple-form 
