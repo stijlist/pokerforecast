@@ -121,31 +121,16 @@
                     :value (:text state)
                     :onChange 
                     (fn [e] 
-                      (om/set-state! owner :text (.. e -target -value)))}]]))))
-  #_(fn [app owner]
-    (om/component 
-      (html [:div "hello from date field"])))
-  #_(fn [app owner]
-   (reify
-     om/IInitState
-     (init-state [_] {:text ""})
-     om/IRenderState
-     (render-state [this state]
-       (html
-         [:label "Date"]
-         [:input {:type "text" :value (:text state) 
-                  :onChange 
-                  (fn [e] 
-                    (om/set-state! owner :text (.. e -target -value)))}]))
-     form/IHaveValue
-     (value [this] (om/get-state owner :text))
-     form/IValidateInput
-     (validation-error? [_] 
-       (if-not 
-         (validate-date (om/get-state owner :text)) 
-         "Please enter a date in mm/dd/yyyy format"))
-     form/IUpdateState
-     (update-state [this] (om/transact! app update-path (partial update-fn (value this)))))))
+                      (om/set-state! owner :text (.. e -target -value)))}]]))
+      form/IHaveValue
+      (value [this] (om/get-state owner :text))
+      form/IValidateInput
+      (validation-error? [_] 
+        (if-not 
+          (validate-date (om/get-state owner :text)) 
+          "Please enter a date in mm/dd/yyyy format"))
+      form/IUpdateState
+      (update-state [this] (om/transact! app update-path (partial update-fn (value this)))))))
 
 (def higher-order-game-form 
   (higher-order-form 
