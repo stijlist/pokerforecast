@@ -109,6 +109,20 @@
 
 (defn date-field [update-path update-fn]
   (fn [app owner]
+    (reify
+      om/IInitState
+      (init-state [_] {:text ""})
+      om/IRenderState
+      (render-state [this state]
+        (html 
+          [:div 
+           [:label "Date"]
+           [:input {:type "text" 
+                    :value (:text state)
+                    :onChange 
+                    (fn [e] 
+                      (om/set-state! owner :text (.. e -target -value)))}]]))))
+  #_(fn [app owner]
     (om/component 
       (html [:div "hello from date field"])))
   #_(fn [app owner]

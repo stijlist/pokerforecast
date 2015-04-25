@@ -29,13 +29,13 @@
 (defprotocol IValidateInput (validation-error? [this] "Returns any validation errors or nil if the field is valid."))
 (defprotocol IUpdateState (update-state [this] "Updates the app state with the field's current value."))
 
-(defn higher-order-form [form-name date-field]
+(defn higher-order-form [form-name & fields]
   (fn [app owner]
     (reify
       om/IRender
-      (render [this] 
-        (html 
-          [:div (om/build date-field {})]
+      (render [this] (om/build (first fields) {})
+        #_(html 
+          [:div (om/build (first fields) {})]
           #_(om/build (first fields) {}))))))
 
 #_(defn higher-order-form [form-name & fields]
