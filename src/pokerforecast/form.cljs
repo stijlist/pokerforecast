@@ -33,10 +33,11 @@
   (fn [app owner]
     (reify
       om/IRender
-      (render [this] (om/build (first fields) {})
-        #_(html 
-          [:div (om/build (first fields) {})]
-          #_(om/build (first fields) {}))))))
+      (render [this] 
+        #_(om/build (first fields) {})
+        (html 
+          [:div (map om/build fields (repeat {}))])
+        ))))
 
 #_(defn higher-order-form [form-name & fields]
   (fn [app owner]

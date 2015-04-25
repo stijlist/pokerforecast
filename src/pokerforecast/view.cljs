@@ -135,7 +135,9 @@
 (def higher-order-game-form 
   (higher-order-form 
     "New game" 
-    (date-field :games (fn [date games] (add-game date games)))))
+    (date-field :games (fn [date games] (add-game date games)))
+    (date-field :games (fn [date games] (add-game date games)))
+    ))
 
 (defn account-buttons [{app :root :as root} owner]
   (om/component
