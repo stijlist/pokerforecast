@@ -113,7 +113,7 @@
        (om/build new-player-form app {:init-state {:hidden true 
                                                    :valid true}})])))
 
-(defn app [{app :root :as root} owner]
+(defn app [{app :root} owner]
   (om/component
     (html [:div 
            (if (:current-user app) 
