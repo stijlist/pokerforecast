@@ -34,33 +34,19 @@
     (reify
       om/IRender
       (render [this] 
-        #_(om/build (first fields) {})
         (html 
-          [:div (map om/build fields (repeat {}))])
+          [:div 
+           [:form 
+            {:onSubmit 
+             (fn [e]
+               (.preventDefault e)
+               (println (validation-error? ((first fields) nil nil))) ;; evaluating the field I want to get access to its protocols seems silly
+               #_(if-let [errors (map validation-error? fields)] ;; thumbs down, fields aren't reify instances with your validation-error method defined; they're functions that will eventually return the reify instances you need
+                 (println errors)
+                 (map update-state fields)))}
+            (map om/build fields (repeat {})) ;; thumbs up, fields are all functions returning reify instances
+            [:input {:type "submit"}]]])
         ))))
-
-#_(defn higher-order-form [form-name & fields]
-  (fn [app owner]
-    (reify
-      om/IRender
-      (render [this]
-        (html [:div 
-               [:button {:onClick #(om/update-state! owner :hidden not)}
-                form-name]
-               [:div 
-                [:form 
-                 {:class 
-                  "flex flow-down align-start"
-                  :onSubmit 
-                  (fn [e] 
-                    (.preventDefault e)
-                    (if-let [errors (map validation-error? fields)]
-                      (println errors)
-                      (map #(update-state % (value %)) fields)))}
-                 [:div {:class "flex flow-down align-start form-fields"}
-                  (inspect (map om/build (zip fields (repeat {}))))]
-                 [:input {:type "submit"}]]]])))))
-          
 
 ;; TODO: OH SHIT! this should be a higher-order componenent!
 (defn- simple-form 
