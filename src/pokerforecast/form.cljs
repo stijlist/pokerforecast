@@ -55,7 +55,12 @@
                         (om/transact! app update-path 
                           (partial update-fn 
                                    (node-vals owner (map :name fields))))
-                        (om/set-state! owner :hidden true))))}
+                        (om/set-state! owner :hidden true))
+                      (om/set-state! owner :valid false)))}
                  [:div {:class "flex flow-down align-start form-fields"}
                   (map build-form-field fields)]
-                 [:input {:type "submit"}]]]])))))
+                 [:input {:type "submit"}]
+                 [:div {:class 
+                        (classes "invalid" 
+                                 (if (om/get-state owner :valid) "hide"))}
+                  "Invalid input."]]]])))))

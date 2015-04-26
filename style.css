@@ -66,6 +66,10 @@ span.current-user::before { content: "Logged in as " }
 span.current-user::after { content: "." }
 span.no-current-user::before { content: "Please log in." }
 
+.invalid {
+  color: red;
+}
+
 .hide {
   display: none;
 }

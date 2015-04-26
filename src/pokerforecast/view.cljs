@@ -108,14 +108,17 @@
   (om/component
     (html
       [:div {:class "flex flow-across"}
-       (om/build login-form root {:init-state {:hidden true}})
-       (om/build new-player-form app {:init-state {:hidden true}})])))
+       (om/build login-form root {:init-state {:hidden true 
+                                               :valid true}})
+       (om/build new-player-form app {:init-state {:hidden true 
+                                                   :valid true}})])))
 
 (defn app [{app :root :as root} owner]
   (om/component
     (html [:div 
            (if (:current-user app) 
-             (om/build new-game-form app {:init-state {:hidden true}}))
+             (om/build new-game-form app {:init-state {:hidden true
+                                                       :valid true}}))
            (om/build current-user app)
            (om/build game-list app)
            (om/build player-list app)])))
