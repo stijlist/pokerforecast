@@ -1,6 +1,7 @@
 .nav {
   justify-content: space-between;
   -webkit-justify-content: space-between;
+  padding-bottom: 0.5em;
 }
   
 .title {
@@ -64,7 +65,6 @@ span.attending-count::after { content: " rsvp'd)" }
 
 span.current-user::before { content: "Logged in as " }
 span.current-user::after { content: "." }
-span.no-current-user::before { content: "Please log in." }
 
 .invalid {
   color: red;

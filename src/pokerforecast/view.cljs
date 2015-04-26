@@ -116,9 +116,12 @@
 (defn app [{app :root} owner]
   (om/component
     (html [:div 
-           (if (:current-user app) 
-             (om/build new-game-form app {:init-state {:hidden true
-                                                       :valid true}}))
+           [:span {:class "flex flow-across space-between"}
+            (om/build new-game-form app {:init-state 
+                                         {:hidden true
+                                          :valid true
+                                          :disabled (not (:current-user app))}})
+            (if-not (:current-user app) "(Please log in to add new games or RSVP.)")]
            (om/build current-user app)
            (om/build game-list app)
            (om/build player-list app)])))

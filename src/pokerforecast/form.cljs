@@ -29,9 +29,7 @@
   `fields` is a vector of maps, containing the keys `name`, `type`, and
   `validation-fn` which are the field label, the dom input type to be used,
   and the function with which to validate user input before allowing form
-  submission, respectively. Currently, validations just silently refuse output,
-  but we should probably either include an option for a validation failure message,
-  or scrap the simple-form mechanism and use higher-order components instead.
+  submission, respectively. 
   `update-fn` takes a vector of values (the values in
   `fields`, ordered, at the moment the user hits submit) and the app state at
   `update-path` and returns the new app state at `update-path`."
@@ -39,9 +37,10 @@
   (fn [app owner]
     (reify
       om/IRenderState
-      (render-state [this {:keys [hidden] :as state}]
+      (render-state [this {:keys [hidden valid disabled] :as state}]
         (html [:div 
-               [:button {:onClick #(om/update-state! owner :hidden not)}
+               [:button {:disabled disabled
+                         :onClick #(om/update-state! owner :hidden not)}
                 form-name]
                [:div {:class (if hidden "hide" "")}
                 [:form 
@@ -60,7 +59,5 @@
                  [:div {:class "flex flow-down align-start form-fields"}
                   (map build-form-field fields)]
                  [:input {:type "submit"}]
-                 [:div {:class 
-                        (classes "invalid" 
-                                 (if (om/get-state owner :valid) "hide"))}
+                 [:div {:class (classes "invalid" (if valid "hide"))}
                   "Invalid input."]]]])))))
