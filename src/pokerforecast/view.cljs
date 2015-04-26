@@ -3,11 +3,8 @@
             [sablono.core :as html :refer-macros [html]]
             [clojure.string :as string]
             [pokerforecast.core :as forecast]
-            [pokerforecast.form :refer [simple-form button-to]]))
-
-(defn- inspect [thing] (println thing) thing)
-
-(defn- classes [& cs] (apply str (interpose " " cs)))
+            [pokerforecast.form :refer [simple-form button-to]]
+            [pokerforecast.helper :refer [inspect classes]]))
 
 (defn- as-percentage [n] (.toFixed (* n 100)))
 

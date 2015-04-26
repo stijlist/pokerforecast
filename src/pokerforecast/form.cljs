@@ -1,6 +1,7 @@
 (ns pokerforecast.form
   (:require [om.core :as om]
-            [sablono.core :refer-macros [html]]))
+            [sablono.core :refer-macros [html]]
+            [pokerforecast.helper :refer [inspect classes]]))
 
 (defn button-to 
   ([label cb] 
