@@ -4,7 +4,6 @@
 
 (enable-console-print!)
 (defn inspect [thing] (println thing) thing)
-(def zip (partial map vector))
 
 (defn button-to 
   ([label cb] 
@@ -24,29 +23,6 @@
   (if-let [validation-fn (:validation-fn field)] 
     (validation-fn (.-value (om/get-node owner (:name field))))
     true))
-
-(defprotocol IHaveValue (value [this] "Gets the value of a form field."))
-(defprotocol IValidateInput (validation-error? [this] "Returns any validation errors or nil if the field is valid."))
-(defprotocol IUpdateState (update-state [this] "Updates the app state with the field's current value."))
-
-(defn higher-order-form [form-name & fields]
-  (fn [app owner]
-    (reify
-      om/IRender
-      (render [this] 
-        (html 
-          [:div 
-           [:form 
-            {:onSubmit 
-             (fn [e]
-               (.preventDefault e)
-               (println (validation-error? ((first fields) nil nil))) ;; evaluating the field I want to get access to its protocols seems silly
-               #_(if-let [errors (map validation-error? fields)] ;; thumbs down, fields aren't reify instances with your validation-error method defined; they're functions that will eventually return the reify instances you need
-                 (println errors)
-                 (map update-state fields)))}
-            (map om/build fields (repeat {})) ;; thumbs up, fields are all functions returning reify instances
-            [:input {:type "submit"}]]])
-        ))))
 
 ;; TODO: OH SHIT! this should be a higher-order componenent!
 (defn- simple-form 
@@ -85,3 +61,27 @@
                  [:div {:class "flex flow-down align-start form-fields"}
                   (map build-form-field fields)]
                  [:input {:type "submit"}]]]])))))
+
+;; forms that build and manage arbitrary om components, as long as they conform to the form protocols below
+
+(defprotocol IHaveValue (value [this] "Gets the value of a form field."))
+(defprotocol IValidateInput (validation-error? [this] "Returns any validation errors or nil if the field is valid."))
+(defprotocol IUpdateState (update-state [this] "Updates the app state with the field's current value."))
+
+(defn higher-order-form [form-name & fields]
+  (fn [app owner]
+    (reify
+      om/IRender
+      (render [this] 
+        (html 
+          [:div 
+           [:form 
+            {:onSubmit 
+             (fn [e]
+               (.preventDefault e)
+               (if-let [errors (map validation-error? fields)]
+                 (println errors)
+                 (map update-state fields)))}
+            (map om/build fields (repeat {}))
+            [:input {:type "submit"}]]])))))
+
