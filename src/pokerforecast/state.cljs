@@ -29,4 +29,4 @@
                                      :rsvpd 1
                                      :attended 1
                                      :threshold 3}}
-                        :current-user nil}}))
+                        :current-user 3}}))

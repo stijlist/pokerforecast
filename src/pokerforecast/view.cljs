@@ -3,7 +3,7 @@
             [sablono.core :as html :refer-macros [html]]
             [clojure.string :as string]
             [pokerforecast.core :as forecast]
-            [pokerforecast.form :as form :refer [simple-form button-to higher-order-form]]))
+            [pokerforecast.form :as form :refer [button-to higher-order-form]]))
 
 (defn- inspect [thing] (println thing) thing)
 
@@ -65,7 +65,7 @@
            (map (partial assoc cursors :game) (:games app))
            {:init-state {:hidden true}})]))))
 
-(def login-form 
+#_(def login-form 
   (simple-form "Login" [{:name "email" :type "text"}
                         {:name "password" :type "password"}]
                :root (fn [[email password] app] 
@@ -77,7 +77,7 @@
                                     id))
                                 (:players app))))))
 
-(def new-player-form
+#_(def new-player-form
   (simple-form "Create account" [{:name "Name" :type "text"}
                                  {:name "Email" :type "text"}
                                  {:name "Password" :type "password"}
@@ -89,55 +89,43 @@
   (let [[mm dd yyyy] (string/split date "/")]
     (and (= 2 (count mm)) (= 2 (count dd)) (= 4 (count yyyy)))))
 
-(def new-game-form 
-  (simple-form "New game" [{:name "Date" :type "text"
-                            :validation-fn validate-date}]
-               :games (fn [[date] games] (add-game date games))))
-
 (defn- player-list [app owner]
   (om/component
     (html [:div 
            [:h3 "Registered Players"]
            [:div (map render-player (vals (:players app)))]])))
 
-(defn- current-user [app owner]
-  (om/component
-    (html 
-      (if-let [user (get (:players app) (:current-user app))]
-        [:div [:span {:class "current-user"} (:name user)]]
-        [:div [:span {:class "no-current-user"}]]))))
+(defn game-date-field [update-path update-fn]
+  (specify 
+    (fn [app owner]
+      (reify
+        om/IInitState
+        (init-state [_] {:text ""})
+        om/IRenderState
+        (render-state [this state]
+          (html 
+            [:div 
+             [:label "Date"]
+             [:input {:type "text" 
+                      :value (:text state)
+                      :onChange 
+                      (fn [e] 
+                        (om/set-state! owner :text (.. e -target -value)))}]]))))
+    form/Field
+    (value [this] (om/get-state owner :text))
+    (validation-error? [_] 
+      (if-not 
+        (validate-date (om/get-state owner :text)) 
+        "Please enter a date in mm/dd/yyyy format"))
+    (update-state [this] 
+      (om/transact! app update-path (partial update-fn (value this))))))
 
-(defn date-field [update-path update-fn]
-  (fn [app owner]
-    (reify
-      om/IInitState
-      (init-state [_] {:text ""})
-      om/IRenderState
-      (render-state [this state]
-        (html 
-          [:div 
-           [:label "Date"]
-           [:input {:type "text" 
-                    :value (:text state)
-                    :onChange 
-                    (fn [e] 
-                      (om/set-state! owner :text (.. e -target -value)))}]]))
-      form/IHaveValue
-      (value [this] (om/get-state owner :text))
-      form/IValidateInput
-      (validation-error? [_] 
-        (if-not 
-          (validate-date (om/get-state owner :text)) 
-          "Please enter a date in mm/dd/yyyy format"))
-      form/IUpdateState
-      (update-state [this] (om/transact! app update-path (partial update-fn (value this)))))))
-
-(def higher-order-game-form 
+(def new-game-form 
   (higher-order-form 
     "New game" 
-    (date-field :games (fn [date games] (add-game date games)))))
+    (game-date-field :games (fn [date games] (add-game date games)))))
 
-(defn account-buttons [{app :root :as root} owner]
+#_(defn account-buttons [{app :root :as root} owner]
   (om/component
     (html
       [:div {:class "flex flow-across"}
@@ -147,9 +135,6 @@
 (defn app [{app :root :as root} owner]
   (om/component
     (html [:div 
-           (if (:current-user app) 
-             (om/build new-game-form app {:init-state {:hidden true}}))
-           (om/build current-user app)
-           (om/build higher-order-game-form app)
+           (om/build new-game-form app)
            (om/build game-list app)
            (om/build player-list app)])))
