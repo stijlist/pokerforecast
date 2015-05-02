@@ -64,7 +64,6 @@
          (om/build-all game-view 
            (map (partial assoc cursors :game) (:games app))
            {:init-state {:hidden true}})]))))
-
 #_(def login-form 
   (simple-form "Login" [{:name "email" :type "text"}
                         {:name "password" :type "password"}]
@@ -95,6 +94,52 @@
            [:h3 "Registered Players"]
            [:div (map render-player (vals (:players app)))]])))
 
+(defn password-field [update-path update-fn]
+  (specify!
+    (fn [app owner]
+      om/IInitState
+      (init-state [_] {:text ""})
+      om/IRenderState
+      (render-state [data state]
+        (html
+          [:div
+           [:label "Password"]
+           [:input {:type "text"
+                    :value (:text state)
+                    :onChange
+                    (fn [e] 
+                      (om/set-state! owner :text (.. e -target -value)))}]])))
+    form/Field
+    (value [this data owner] (om/get-state owner :text))
+    (validation-error? [this data owner]
+      (if-not (validate-email (om/get-state owner :text))
+        "Please enter a valid email address."))
+    (update-state [this data owner]
+                  (om/transact! data update-path (partial update-fn (value this data owner))))))
+
+(defn email-field [update-path update-fn]
+  (specify!
+    (fn [app owner]
+      om/IInitState
+      (init-state [_] {:text ""})
+      om/IRenderState
+      (render-state [data state]
+        (html 
+          [:div
+           [:label "Email"]
+           [:input {:type "text"
+                    :value (:text state)
+                    :onChange
+                    (fn [e] 
+                      (om/set-state! owner :text (.. e -target -value)))}]])))
+    form/Field
+    (value [this data owner] (om/get-state owner :text))
+    (validation-error? [this data owner]
+      (if-not (validate-email (om/get-state owner :text))
+        "Please enter a valid email address."))
+    (update-state [this data owner]
+                  (om/transact! data update-path (partial update-fn (value this data owner))))))
+
 (defn game-date-field [update-path update-fn]
   (specify! 
     (fn [app owner]
@@ -113,12 +158,12 @@
                         (om/set-state! owner :text (.. e -target -value)))}]]))))
     form/Field
     (value [this data owner] (om/get-state owner :text))
-    (validation-error? [this data owner] 
+    (validation-error? [this data owner]
       (if-not 
-        (validate-date (om/get-state owner :text)) 
+        (validate-date (inspect (om/get-state owner :text))) 
         "Please enter a date in mm/dd/yyyy format"))
     (update-state [this data owner] 
-      (om/transact! app update-path (partial update-fn (value this))))))
+      (om/transact! app update-path (partial update-fn (value this data owner))))))
 
 (def new-game-form 
   (higher-order-form 
