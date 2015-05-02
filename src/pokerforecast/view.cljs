@@ -96,7 +96,7 @@
            [:div (map render-player (vals (:players app)))]])))
 
 (defn game-date-field [update-path update-fn]
-  (specify 
+  (specify! 
     (fn [app owner]
       (reify
         om/IInitState
@@ -112,12 +112,12 @@
                       (fn [e] 
                         (om/set-state! owner :text (.. e -target -value)))}]]))))
     form/Field
-    (value [this] (om/get-state owner :text))
-    (validation-error? [_] 
+    (value [this data owner] (om/get-state owner :text))
+    (validation-error? [this data owner] 
       (if-not 
         (validate-date (om/get-state owner :text)) 
         "Please enter a date in mm/dd/yyyy format"))
-    (update-state [this] 
+    (update-state [this data owner] 
       (om/transact! app update-path (partial update-fn (value this))))))
 
 (def new-game-form 
