@@ -3,7 +3,7 @@
             [sablono.core :as html :refer-macros [html]]
             [clojure.string :as string]
             [pokerforecast.core :as forecast]
-            [pokerforecast.form :as form :refer [button-to higher-order-form]]))
+            [pokerforecast.form :as form :refer [button-to form]]))
 
 (defn- inspect [thing] (println thing) thing)
 
@@ -64,25 +64,6 @@
          (om/build-all game-view 
            (map (partial assoc cursors :game) (:games app))
            {:init-state {:hidden true}})]))))
-#_(def login-form 
-  (simple-form "Login" [{:name "email" :type "text"}
-                        {:name "password" :type "password"}]
-               :root (fn [[email password] app] 
-                       (assoc app :current-user
-                              (some 
-                                (fn [[id player]] 
-                                  (if (and (= email (:email player))
-                                           (= password (:password player))) ; temp, obvs
-                                    id))
-                                (:players app))))))
-
-#_(def new-player-form
-  (simple-form "Create account" [{:name "Name" :type "text"}
-                                 {:name "Email" :type "text"}
-                                 {:name "Password" :type "password"}
-                                 {:name "Minimum game threshold" :type "number"}]
-               :players (fn [[pname email password threshold] existing] 
-                          (add-player (fresh-player pname email password threshold) existing))))
 
 (defn- validate-date [date]
   (let [[mm dd yyyy] (string/split date "/")]
@@ -94,53 +75,7 @@
            [:h3 "Registered Players"]
            [:div (map render-player (vals (:players app)))]])))
 
-(defn password-field [update-path update-fn]
-  (specify!
-    (fn [app owner]
-      om/IInitState
-      (init-state [_] {:text ""})
-      om/IRenderState
-      (render-state [data state]
-        (html
-          [:div
-           [:label "Password"]
-           [:input {:type "text"
-                    :value (:text state)
-                    :onChange
-                    (fn [e] 
-                      (om/set-state! owner :text (.. e -target -value)))}]])))
-    form/Field
-    (value [this data owner] (om/get-state owner :text))
-    (validation-error? [this data owner]
-      (if-not (validate-email (om/get-state owner :text))
-        "Please enter a valid email address."))
-    (update-state [this data owner]
-                  (om/transact! data update-path (partial update-fn (value this data owner))))))
-
-(defn email-field [update-path update-fn]
-  (specify!
-    (fn [app owner]
-      om/IInitState
-      (init-state [_] {:text ""})
-      om/IRenderState
-      (render-state [data state]
-        (html 
-          [:div
-           [:label "Email"]
-           [:input {:type "text"
-                    :value (:text state)
-                    :onChange
-                    (fn [e] 
-                      (om/set-state! owner :text (.. e -target -value)))}]])))
-    form/Field
-    (value [this data owner] (om/get-state owner :text))
-    (validation-error? [this data owner]
-      (if-not (validate-email (om/get-state owner :text))
-        "Please enter a valid email address."))
-    (update-state [this data owner]
-                  (om/transact! data update-path (partial update-fn (value this data owner))))))
-
-(defn game-date-field [update-path update-fn]
+(def game-date-field
   (specify! 
     (fn [app owner]
       (reify
@@ -160,26 +95,17 @@
     (value [this data owner] (om/get-state owner :text))
     (validation-error? [this data owner]
       (if-not 
-        (validate-date (inspect (om/get-state owner :text))) 
-        "Please enter a date in mm/dd/yyyy format"))
-    (update-state [this data owner] 
-      (om/transact! app update-path (partial update-fn (value this data owner))))))
+        (validate-date (inspect (value this))) 
+        "Please enter a date in jm/dd/yyyy format"))
+    (update-state [this data owner value] 
+      (om/transact! data :games (partial add-game value)))))
 
-(def new-game-form 
-  (higher-order-form 
-    "New game" 
-    (game-date-field :games (fn [date games] (add-game date games)))))
-
-#_(defn account-buttons [{app :root :as root} owner]
+(defn app [data owner]
   (om/component
-    (html
-      [:div {:class "flex flow-across"}
-       (om/build login-form root {:init-state {:hidden true}})
-       (om/build new-player-form app {:init-state {:hidden true}})])))
-
-(defn app [{app :root :as root} owner]
-  (om/component
-    (html [:div 
-           (om/build new-game-form app)
-           (om/build game-list app)
-           (om/build player-list app)])))
+    (html 
+      [:div 
+       (om/build 
+         (form "New game" game-date-field)
+         data)
+       (om/build game-list data)
+       (om/build player-list data)])))
