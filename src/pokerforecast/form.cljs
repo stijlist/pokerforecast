@@ -26,7 +26,7 @@
           {:onSubmit 
            (fn [e]
              (.preventDefault e)
-             (let [errors (filter identity (map #(validation-error? % data owner) fields))]
+             (let [errors (filter some? (map #(validation-error? % data owner) fields))]
                (if (not-empty errors)
                  (println errors)
                  (map #(update-state % data owner (value % data owner)) fields))))}

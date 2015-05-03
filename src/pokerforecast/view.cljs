@@ -75,27 +75,28 @@
            [:h3 "Registered Players"]
            [:div (map render-player (vals (:players app)))]])))
 
-(def game-date-field
-  (specify! 
-    (fn [app owner]
-      (reify
-        om/IInitState
-        (init-state [_] {:text ""})
-        om/IRenderState
-        (render-state [this state]
-          (html 
-            [:div 
-             [:label "Date"]
-             [:input {:type "text" 
-                      :value (:text state)
-                      :onChange 
-                      (fn [e] 
-                        (om/set-state! owner :text (.. e -target -value)))}]]))))
+(defn date-component [app owner]
+  (reify
+    om/IInitState
+    (init-state [_] {:text ""})
+    om/IRenderState
+    (render-state [this state]
+      (html 
+        [:div 
+         [:label "Date"]
+         [:input {:type "text" 
+                  :value (:text state)
+                  :onChange 
+                  (fn [e] 
+                    (om/set-state! owner :text (.. e -target -value)))}]]))))
+
+(def date-field
+  (specify! date-component
     form/Field
     (value [this data owner] (om/get-state owner :text))
     (validation-error? [this data owner]
       (if-not 
-        (validate-date (inspect (value this))) 
+        (validate-date (inspect (om/get-state owner :text))) 
         "Please enter a date in jm/dd/yyyy format"))
     (update-state [this data owner value] 
       (om/transact! data :games (partial add-game value)))))
@@ -104,8 +105,6 @@
   (om/component
     (html 
       [:div 
-       (om/build 
-         (form "New game" game-date-field)
-         data)
+       (om/build (form "New game" date-field) data)
        (om/build game-list data)
        (om/build player-list data)])))
