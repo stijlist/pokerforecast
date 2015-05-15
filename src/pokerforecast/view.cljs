@@ -44,6 +44,7 @@
                 (as-percentage (forecast/maximum-game-likelihood attending))]
                [:span {:class "confidence"} 
                 (as-percentage (forecast/likelihood-confidence attending))]
+               [:div {:class "history-chart"} "History?"]
                [:span {:class "attending-count"} (count attending)]
                (button-to "Show attending" #(om/update-state! owner :hidden not))
                (if rsvpd
@@ -117,8 +118,8 @@
 (defn app [{app :root :as root} owner]
   (om/component
     (html [:div 
+           (om/build current-user app)
            (if (:current-user app) 
              (om/build new-game-form app {:init-state {:hidden true}}))
-           (om/build current-user app)
            (om/build game-list app)
            (om/build player-list app)])))
