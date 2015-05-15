@@ -54,11 +54,6 @@ In code:
 
 ## Setup
 
-First-time Clojurescript developers, add the following to your bash .profile:
-
-    export LEIN_FAST_TRAMPOLINE=y
-    alias cljsbuild="lein trampoline cljsbuild $@"
-
 To avoid compiling ClojureScript for each build, AOT Clojurescript locally in your project with the following:
 
     ./scripts/compile_cljsc
@@ -83,10 +78,10 @@ Optimized builds:
 
     lein cljsbuild once release     
 
-For more info on Cljs compilation, read [Waitin'](http://swannodette.github.io/2014/12/22/waitin/).
+For more info on cljs compilation, read [Waitin'](http://swannodette.github.io/2014/12/22/waitin/).
 
 ## License
 
-Copyright © 2014 FIXME
+Copyright © 2014 Bert Muthalaly
 
 Distributed under the Eclipse Public License either version 1.0 or (at your option) any later version.
