@@ -52,7 +52,7 @@ In code:
        (default 0)))
 ```
 
-## Motivation
+## Motivation and future plans
 
 This app is being written as much for my own edification w.r.t. ClojureScript
 in general and designing in the browser as it is to scratch an itch and be a
@@ -85,6 +85,17 @@ piece of information to be reduced, and returns the new state of the app. Given
 a log of events, then, and an empty app-state, we can graph the change over
 time of our forecasts. These events could be windowed or paginated in some way
 to prevent the computation time of our graphs from growing without bound.
+
+Finally, it is probably obvious to you that nothing about this app is specific
+to poker; it could (and probably should!) be adapted to handle karaoke nights
+and office seminars equally as well as it handles Texas hold 'em. Right now,
+the only thing the app takes advantage of is the idea that any n-handed poker
+game is equivalent to any other n-handed poker game in sufficiency, while
+someone's attendance at an office seminar or karaoke night could be predicated
+on a complex, interdependent list of criteria. I'll hold off on trying to model
+this until I've finished or abandoned the two features above, but it's an 
+interesting challenge and a potentially make-or-break feature for the app to
+obtain broader appeal.
 
 ## Setup
 
