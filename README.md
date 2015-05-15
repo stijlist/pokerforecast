@@ -52,6 +52,40 @@ In code:
        (default 0)))
 ```
 
+## Motivation
+
+This app is being written as much for my own edification w.r.t. ClojureScript
+in general and designing in the browser as it is to scratch an itch and be a
+little funny. As it stands, I've spent an inordinate amount of time nibbling
+around the edges of CSS layout and higher-order-components in Om, and not much
+time building out the app beyond calculating the likelihood you see above. 
+
+One possible direction for the app might be helping the user make better
+decisions as they're planning a given poker night before they even post it;
+giving them the option of asking hypotheticals ("What's the poker forecast if I
+invited Bill and James?") and acting based on the results. 
+
+Another feature I'd like is displaying a line graph of how the likelihood
+changes over time as we get more information, and noting what the events are
+that cause each change. For example, if someone RSVPs for a game and the
+likelihood goes up from 67% to 80%, it would be great to show on a graph a
+marker for that event and the subsequent spike in likelihood. The same would be
+true if someone un-RSVPs, or we gain more information about them after they
+flake for a different game.
+
+The implementations for these two features are interesting. The first,
+answering hypotheticals in the planning stage, might benefit from incremental
+calculation of the powerset of all players: the addition or removal of a given
+player would trigger an O(n) update as we either generate new subsets with the
+player added, or remove all subsets containing the player. The second,
+displaying the line graph of change over time, might benefit from incremental
+calculation of the state of the app. This could be implemented as some kind of
+reducing function that takes the current state of the app as a memo, a new
+piece of information to be reduced, and returns the new state of the app. Given
+a log of events, then, and an empty app-state, we can graph the change over
+time of our forecasts. These events could be windowed or paginated in some way
+to prevent the computation time of our graphs from growing without bound.
+
 ## Setup
 
 To avoid compiling ClojureScript for each build, AOT Clojurescript locally in your project with the following:
