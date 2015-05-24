@@ -123,7 +123,7 @@ Optimized builds:
 
     lein cljsbuild once release     
 
-For more info on cljs compilation, read [Waitin'](http://swannodette.github.io/2014/12/22/waitin/).
+For more info on cljs compilation, read the [ClojureScript Quick Start](https://github.com/clojure/clojurescript/wiki/Quick-Start).
 
 ## License
 
