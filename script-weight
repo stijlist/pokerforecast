@@ -1,0 +1,4 @@
+#!/bin/sh
+cat pokerforecast.min.js | gzip > gzipped
+du -h gzipped
+rm gzipped
